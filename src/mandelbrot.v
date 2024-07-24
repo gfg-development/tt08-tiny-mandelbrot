@@ -31,15 +31,21 @@
 
 module mandelbrot #( 
     parameter BITWIDTH      = 10,
-    parameter CTRWIDTH      = 4,
-    parameter HEIGHT        = 480,
-    parameter WIDTH         = 640
+    parameter CTRWIDTH      = 4
 ) (
     input  wire                     clk,
     input  wire                     reset,
-    output reg  [CTRWIDTH - 1 : 0]  ctr_out,
+    input  wire                     run,
+    input  wire [CTRWIDTH - 1 : 0]  max_ctr,
+    input  wire [1 : 0]             ctr_select,
+    output reg  [3 : 0]             ctr_out,
     output reg                      new_ctr
 );
+    localparam HEIGHT       = 480;
+    localparam WIDTH        = 640;
+    localparam CR_OFFSET    = - WIDTH / 2 - WIDTH / 4 - WIDTH / 8;
+    localparam CI_OFFSET    = - WIDTH / 2;
+
     wire signed [BITWIDTH - 1 : 0]      in_cr;
     wire signed [BITWIDTH - 1 : 0]      in_ci;
     wire signed [BITWIDTH - 1 : 0]      in_zr;
@@ -53,29 +59,46 @@ module mandelbrot #(
     reg  signed [BITWIDTH - 1 : 0]      zr;
     reg  signed [BITWIDTH - 1 : 0]      zi;
     reg         [CTRWIDTH - 1 : 0]      ctr;
+    reg                                 stopped;
 
     always @(posedge clk) begin
-        new_ctr             <= 1'b0;
+        new_ctr                     <= 1'b0;
         if (reset) begin
-            cr              <= - HEIGHT / 2 - HEIGHT / 4 - HEIGHT / 8;
-            ci              <= - HEIGHT / 2;
-            zr              <= 0;
-            zi              <= 0;
-            ctr             <= 0;
-        end else begin
-            if (size == 1'b0 || ctr == 15) begin
-                new_ctr     <= 1'b1;
-                ctr_out     <= ctr;
+            cr                      <= CR_OFFSET;
+            ci                      <= CI_OFFSET;
+            zr                      <= 0;
+            zi                      <= 0;
+            ctr                     <= 0;
+            stopped                 <= 1'b1;
+        end else if (stopped == 1'b0) begin
+            if (size == 1'b1 || ctr == max_ctr) begin
+                new_ctr             <= 1'b1;
+                case (ctr_select)
+                    2'b00: ctr_out  <= ctr[3 : 0];
+                    2'b01: ctr_out  <= ctr[4 : 1];
+                    2'b10: ctr_out  <= ctr[5 : 2];
+                    2'b11: ctr_out  <= ctr[6 : 3];
+                endcase
 
-                zr          <= 0;
-                zi          <= 0;
-                cr          <= cr + 1;
-                ci          <= ci + 1;
+                zr                  <= 0;
+                zi                  <= 0;
+
+                if (cr == WIDTH + CR_OFFSET - 1) begin
+                    cr              <= CR_OFFSET;
+                    ci              <= ci + 1;
+                    if (ci == HEIGHT + CI_OFFSET - 1) begin
+                        stopped     <= 1'b1;
+                    end
+                end else begin
+                    cr              <= cr + 1;
+                end
             end else begin
-                zr          <= out_zr;
-                zi          <= out_zi;
-                ctr         <= ctr + 1;
+                zr                  <= out_zr;
+                zi                  <= out_zi;
+                ctr                 <= ctr + 1;
             end
+        end else if (run == 1'b1) begin
+            stopped                 <= 1'b0;
         end
     end
 
