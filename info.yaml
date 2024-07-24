@@ -34,11 +34,11 @@ pinout:
   ui[7]: ""
 
   # Outputs
-  uo[0]: ""
-  uo[1]: ""
-  uo[2]: ""
-  uo[3]: ""
-  uo[4]: ""
+  uo[0]: "ctr[0]"
+  uo[1]: "ctr[0]"
+  uo[2]: "ctr[0]"
+  uo[3]: "ctr[0]"
+  uo[4]: "new_ctr"
   uo[5]: ""
   uo[6]: ""
   uo[7]: ""
