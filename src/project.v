@@ -17,7 +17,6 @@ module tt_um_gfg_development_tinymandelbrot (
 );
 
   // All output pins must be assigned. If not used, assign to 0.
-  assign uo_out[7 : 5]  = 3'b000;
   assign uio_out        = 0;
   assign uio_oe         = 0;
 
@@ -26,11 +25,11 @@ module tt_um_gfg_development_tinymandelbrot (
   wire reset;
 
   assign reset = !rst_n;
-  mandelbrot #(.BITWIDTH(10)) mandelbrot (
+  mandelbrot #(.BITWIDTH(11), .CTRWIDTH(7)) mandelbrot (
       .clk(clk),
       .reset(reset),
-      .ctr_out(uo_out[3 : 0]),
-      .new_ctr(uo_out[4])
+      .ctr_out(uo_out[6 : 0]),
+      .new_ctr(uo_out[7])
   );
 
 endmodule
