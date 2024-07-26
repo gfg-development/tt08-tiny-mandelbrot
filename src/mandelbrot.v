@@ -64,14 +64,8 @@ module mandelbrot #(
 
     always @(posedge clk) begin
         new_ctr                     <= 1'b0;
-        if (reset) begin
-            cr                      <= CR_OFFSET;
-            ci                      <= CI_OFFSET;
-            zr                      <= 0;
-            zi                      <= 0;
-            ctr                     <= 0;
-            stopped                 <= 1'b1;
-        end else if (stopped == 1'b0) begin
+        
+        if (stopped == 1'b0) begin
             if (size == 1'b1 || ctr == max_ctr) begin
                 new_ctr             <= 1'b1;
                 case (ctr_select)
@@ -98,9 +92,21 @@ module mandelbrot #(
                 zi                  <= out_zi;
                 ctr                 <= ctr + 1;
             end
-        end else if (run == 1'b1) begin
-            stopped                 <= 1'b0;
+        end else begin
+            cr                      <= CR_OFFSET;
+            ci                      <= CI_OFFSET;
+            zr                      <= 0;
+            zi                      <= 0;
+            ctr                     <= 0;
+
+            if (run == 1'b1) begin
+                stopped             <= 1'b0;
+            end
         end
+
+        if (reset) begin
+            stopped                 <= 1'b1;
+        end if;
     end
 
     assign in_cr = cr;
