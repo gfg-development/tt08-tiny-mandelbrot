@@ -68,6 +68,7 @@ module mandelbrot #(
         if (stopped == 1'b0) begin
             if (size == 1'b1 || ctr == max_ctr) begin
                 new_ctr             <= 1'b1;
+                ctr                 <= 0;
                 case (ctr_select)
                     2'b00: ctr_out  <= ctr[3 : 0];
                     2'b01: ctr_out  <= ctr[4 : 1];
