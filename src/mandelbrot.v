@@ -106,7 +106,7 @@ module mandelbrot #(
 
         if (reset) begin
             stopped                 <= 1'b1;
-        end if;
+        end
     end
 
     assign in_cr = cr;
