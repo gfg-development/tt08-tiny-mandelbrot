@@ -36,6 +36,7 @@ module mandelbrot #(
     input  wire                     clk,
     input  wire                     reset,
     input  wire                     run,
+    output wire                     running,
     input  wire [CTRWIDTH - 1 : 0]  max_ctr,
     input  wire [1 : 0]             ctr_select,
     output reg  [3 : 0]             ctr_out,
@@ -107,6 +108,8 @@ module mandelbrot #(
 
     assign in_zr = zr;
     assign in_zi = zi;
+
+    assign running = !stopped;
 
     mandelbrot_alu #(.WIDTH(BITWIDTH)) alu (
         .in_cr(in_cr),

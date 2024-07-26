@@ -19,7 +19,7 @@ module tt_um_gfg_development_tinymandelbrot (
   // All output pins must be assigned. If not used, assign to 0.
   assign uio_out        = 0;
   assign uio_oe         = 0;
-  assign uo_out[6 : 4]  = 0;
+  assign uo_out[6 : 5]  = 0;
   // List all unused inputs to prevent warnings
   wire _unused = &{ena, clk, rst_n, 1'b0};
   wire reset;
@@ -29,6 +29,7 @@ module tt_um_gfg_development_tinymandelbrot (
       .clk(clk),
       .reset(reset),
       .run(ui_in[7]),
+      .running(uo_out[4]),
       .max_ctr(uio_in[6 : 0]),
       .ctr_select(ui_in[1 : 0]),
       .ctr_out(uo_out[3 : 0]),
