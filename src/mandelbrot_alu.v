@@ -39,7 +39,8 @@ module mandelbrot_alu #( parameter WIDTH = 8) (
     input  wire signed [WIDTH - 1 : 0]     in_zi,
     output wire signed [WIDTH - 1 : 0]     out_zr,
     output wire signed [WIDTH - 1 : 0]     out_zi,
-    output wire                            size
+    output wire                            size,
+    output wire                            overflow
 );
     wire signed [2 * WIDTH - 1 : 0] m1;
     wire signed [2 * WIDTH - 1 : 0] m2;
@@ -55,7 +56,7 @@ module mandelbrot_alu #( parameter WIDTH = 8) (
     assign m3       = in_zr * in_zi;
     
     assign t_zr     = m1[2 * WIDTH - 3 : WIDTH - 3] - m2[2 * WIDTH - 3 : WIDTH - 3] + {{1{in_cr[WIDTH - 1]}}, in_cr, 1'b0};
-    assign t_zi     = m3[2 * WIDTH - 2 : WIDTH - 2] + {{1{in_ci[WIDTH - 1]}}, in_ci,  1'b0};
+    assign t_zi     = m3[2 * WIDTH - 4 : WIDTH - 4] + {{1{in_ci[WIDTH - 1]}}, in_ci,  1'b0};
 
     assign out_zr   = t_zr[WIDTH : 1];
     assign out_zi   = t_zi[WIDTH : 1];
