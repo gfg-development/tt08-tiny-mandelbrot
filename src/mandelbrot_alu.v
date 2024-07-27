@@ -57,8 +57,8 @@ module mandelbrot_alu #( parameter WIDTH = 8) (
     assign m2           = in_zi * in_zi;
     assign m3           = in_zr * in_zi;
     
-    assign t_zr         = m1 - m2 + {{3{in_cr[WIDTH - 1]}}, in_cr, {WIDTH-2{1'b0}}};
-    assign t_zi         = {m3, 1'b0} + {{4{in_ci[WIDTH - 1]}}, in_ci, {WIDTH-2{1'b0}}};
+    assign t_zr         = {m1[2 * WIDTH - 1], m1} - {m2[2 * WIDTH - 1], m2} + {{3{in_cr[WIDTH - 1]}}, in_cr, {WIDTH-2{1'b0}}};
+    assign t_zi         = {m3[2 * WIDTH - 1], m3, 1'b0} + {{4{in_ci[WIDTH - 1]}}, in_ci, {WIDTH-2{1'b0}}};
 
     assign out_zr       = t_zr[2 * WIDTH - 3 : WIDTH - 2];
     assign out_zi       = t_zi[2 * WIDTH - 3 : WIDTH - 2];
