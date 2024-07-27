@@ -54,6 +54,7 @@ module mandelbrot #(
     wire signed [BITWIDTH - 1 : 0]      out_zr;
     wire signed [BITWIDTH - 1 : 0]      out_zi;
     wire                                size;
+    wire                                overflow;
 
     reg  signed [BITWIDTH - 1 : 0]      cr;
     reg  signed [BITWIDTH - 1 : 0]      ci;
@@ -61,14 +62,16 @@ module mandelbrot #(
     reg  signed [BITWIDTH - 1 : 0]      zi;
     reg         [CTRWIDTH - 1 : 0]      ctr;
     reg                                 stopped;
+    reg                                 overflowed;
 
     always @(posedge clk) begin
         new_ctr                     <= 1'b0;
         
         if (stopped == 1'b0) begin
-            if (size == 1'b1 || ctr == max_ctr) begin
+            if (size == 1'b1 || ctr == max_ctr || overflowed) begin
                 new_ctr             <= 1'b1;
                 ctr                 <= 0;
+                overflowed          <= 0;
                 case (ctr_select)
                     2'b00: ctr_out  <= ctr[3 : 0];
                     2'b01: ctr_out  <= ctr[4 : 1];
@@ -92,6 +95,7 @@ module mandelbrot #(
                 zr                  <= out_zr;
                 zi                  <= out_zi;
                 ctr                 <= ctr + 1;
+                overflowed          <= overflow;
             end
         end else begin
             cr                      <= CR_OFFSET;
@@ -99,6 +103,7 @@ module mandelbrot #(
             zr                      <= 0;
             zi                      <= 0;
             ctr                     <= 0;
+            overflowed              <= 0;
 
             if (run == 1'b1) begin
                 stopped             <= 1'b0;
@@ -125,6 +130,7 @@ module mandelbrot #(
         .in_zi(in_zi),
         .out_zr(out_zr),
         .out_zi(out_zi),
-        .size(size)
+        .size(size),
+        .overflow(overflow)
     );
 endmodule
