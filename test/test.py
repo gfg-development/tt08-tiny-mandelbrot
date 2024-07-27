@@ -27,6 +27,8 @@ async def test_project(dut):
 
     dut._log.info("Test project behavior")
 
+    assert dut.user_project.mandelbrot.running.value == 0
+
     # Setting start flag
     dut.ui_in.value = 128
     await ClockCycles(dut.clk, 1)

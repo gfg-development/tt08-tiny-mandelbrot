@@ -23,26 +23,25 @@ async def model(dut, zr, zi, cr, ci):
     assert dut.alu.m2.value.signed_integer == m2
     assert dut.alu.m3.value.signed_integer == m3
 
-    t_zr = (m1 - m2) // (SCALING // 2) + 2 * cr
-    t_zi = m3 // (SCALING // 4) + 2 * ci
+    t_zr = (m1 - m2) + cr * SCALING
+    t_zi = 2 * m3 + ci * SCALING
 
-    if t_zr >= 2 * 2 * SCALING or t_zr < -2 * 2 * SCALING or t_zi >= 2 * 2 * SCALING or t_zi < -2 * 2 * SCALING:
+    if t_zr >= 2 * SCALING * SCALING or t_zr < -2 * SCALING * SCALING or t_zi >= 2 * SCALING * SCALING or t_zi < -2 * SCALING * SCALING:
         assert dut.alu.overflow.value == 1
     else:
         assert dut.alu.t_zr.value.signed_integer == t_zr
         assert dut.alu.t_zi.value.signed_integer == t_zi
 
-        assert dut.alu.out_zr.value.signed_integer == t_zr // 2
-        assert dut.alu.out_zi.value.signed_integer == t_zi // 2
+        assert dut.alu.out_zr.value.signed_integer == t_zr // SCALING
+        assert dut.alu.out_zi.value.signed_integer == t_zi // SCALING
 
         assert dut.alu.overflow.value == 0
 
-    if (m1 + m2) // SCALING > 4 * SCALING: 
+    if (m1 + m2) > 4 * SCALING * SCALING: 
         assert dut.alu.size.value == 1
     else:
         assert dut.alu.size.value == 0
 
-    ### TODO: add assert for size
 
 @cocotb.test()
 async def test_project(dut):
@@ -75,25 +74,12 @@ async def test_project(dut):
 
     # Test calculation of size
     await model(dut, SCALING, SCALING, 0, 0)
+    await model(dut, -SCALING, -SCALING, 0, 0)
+    await model(dut, SCALING, -SCALING, 0, 0)
+    await model(dut, -SCALING, SCALING, 0, 0)
     await model(dut, SCALING + SCALING // 2, SCALING + SCALING // 2, 0, 0)
+    await model(dut, -SCALING + SCALING // 2, -SCALING + SCALING // 2, 0, 0)
+    await model(dut, SCALING + SCALING // 2, -SCALING + SCALING // 2, 0, 0)
+    await model(dut, -SCALING + SCALING // 2, SCALING + SCALING // 2, 0, 0)
 
-
-    # TODO: This results in a value bigger than 2.x!
-    dut.in_zr.value = 0
-    dut.in_zi.value = 2 * SCALING
-    dut.in_cr.value = 0
-    dut.in_ci.value = 0
-
-    await ClockCycles(dut.clk, 2)
-
-    assert dut.size.value == 0
-
-    # Test calculation of size
-    dut.in_zr.value = 1
-    dut.in_zi.value = 2 * SCALING
-    dut.in_cr.value = 0
-    dut.in_ci.value = 0
-
-    await ClockCycles(dut.clk, 2)
-
-    assert dut.size.value == 1
+    await model(dut, - 2 * SCALING, 0, 0, 0)

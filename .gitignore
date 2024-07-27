@@ -2,6 +2,7 @@
 .idea
 .vscode
 *.vcd
+*.ppm
 runs
 tt_submission
 src/user_config.json
@@ -10,4 +11,3 @@ test/**/sim_build
 test/**/__pycache__/
 test/**/results.xml
 test/gate_level_netlist.v
-test/*.ppm

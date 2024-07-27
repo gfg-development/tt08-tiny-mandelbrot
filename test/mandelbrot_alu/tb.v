@@ -23,6 +23,7 @@ module tb ();
   wire [10:0] out_zr;
   wire [10:0] out_zi;
   wire        size;
+  wire        overflow;
 
   mandelbrot_alu #(.WIDTH(11)) alu (
         .in_cr(in_cr),
@@ -31,7 +32,8 @@ module tb ();
         .in_zi(in_zi),
         .out_zr(out_zr),
         .out_zi(out_zi),
-        .size(size)
+        .size(size),
+        .overflow(overflow)
     );
 
   always @(posedge clk) begin
