@@ -28,7 +28,7 @@ module tt_um_gfg_development_tinymandelbrot (
 
   always @(posedge clk) begin
     if (ui_in[6] == 1'b1) begin
-      configuration   <= {configuration[23 : 1], ui_in[7]};
+      configuration   <= {configuration[22 : 0], ui_in[7]};
     end
   end
 
