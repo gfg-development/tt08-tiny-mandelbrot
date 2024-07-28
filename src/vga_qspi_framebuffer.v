@@ -132,31 +132,4 @@ module vga_qspi_framebuffer #(
 
     /* Black out the pixels while not in the visible area */
     assign  gray_out = (row_reset == 1 || line_reset == 1) ? 0 : pixel_buffer;
-
-    /* Handle the buffering and reading of pixels from the frame buffer */
-    reg  [WIDTH_PIXEL_DIV - 1 : 0]  clk_ctr;
-    reg                             shift_pixel_out;
-    reg  [3 : 0]                    pixel_buffer;
-    always @(posedge clk) begin
-        if (row_reset == 1 || line_reset == 1) begin
-            clk_ctr                         <= 0;
-            shift_pixel_out                 <= 0;
-            pixel_buffer                    <= frame_pixel_in;
-        end else begin
-            if (clk_ctr == pixel_div) begin
-                clk_ctr                     <= 0;
-                pixel_buffer                <= frame_pixel_in;
-            end else begin
-                clk_ctr                     <= clk_ctr + 1;
-            end
-
-            if (clk_ctr == 0) begin
-                shift_pixel_out             <= 1;
-            end
-
-            if (clk_ctr == (pixel_div >> 1)) begin
-                shift_pixel_out             <= 0;
-            end
-        end
-    end
 endmodule
