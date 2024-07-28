@@ -56,7 +56,7 @@ module tt_um_gfg_development_tinymandelbrot (
       .ci_offset(configuration[21 : 11]),
       .ctr_select(ui_in[1 : 0]),
       .ctr_out(uo_out[3 : 0]),
-      .new_ctr(uo_out[7])
+      .finished(uo_out[7])
   );
 
 endmodule
