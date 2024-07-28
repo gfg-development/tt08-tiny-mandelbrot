@@ -9,8 +9,11 @@ module tb ();
   reg clk;
   reg reset;
   reg run;
-  reg [1:0] ctr_select;
-  reg [6:0] max_ctr;
+  reg [1:0]   ctr_select;
+  reg [6:0]   max_ctr;
+  reg [1:0]   scaling;
+  reg [10:0]  cr_offset;
+  reg [10:0]  ci_offset;
 
   wire [3:0] ctr_out;
   wire       new_ctr;
@@ -23,6 +26,9 @@ module tb ();
       .running(running),
       .max_ctr(max_ctr),
       .ctr_select(ctr_select),
+      .scaling(scaling),
+      .cr_offset(cr_offset),
+      .ci_offset(ci_offset),
       .ctr_out(ctr_out),
       .new_ctr(new_ctr)
   );

@@ -39,14 +39,14 @@ module mandelbrot #(
     output wire                     running,
     input  wire [CTRWIDTH - 1 : 0]  max_ctr,
     input  wire [1 : 0]             ctr_select,
+    input  wire [1 : 0]             scaling,
+    input  wire [BITWIDTH - 1 : 0]  cr_offset,
+    input  wire [BITWIDTH - 1 : 0]  ci_offset,
     output reg  [3 : 0]             ctr_out,
     output reg                      new_ctr
 );
     localparam HEIGHT       = 480;
     localparam WIDTH        = 640;
-    localparam CR_OFFSET    = - WIDTH / 2 - WIDTH / 4 - WIDTH / 8;
-    localparam CI_OFFSET    = - WIDTH / 2;
-    localparam SCALING      = 2;
 
     wire signed [BITWIDTH - 1 : 0]      in_cr;
     wire signed [BITWIDTH - 1 : 0]      in_ci;
@@ -64,6 +64,9 @@ module mandelbrot #(
     reg         [CTRWIDTH - 1 : 0]      ctr;
     reg                                 stopped;
     reg                                 overflowed;
+
+    reg         [9 : 0]                 x;
+    reg         [8 : 0]                 y;
 
     always @(posedge clk) begin
         new_ctr                     <= 1'b0;
@@ -83,14 +86,20 @@ module mandelbrot #(
                 zr                  <= 0;
                 zi                  <= 0;
 
-                if (cr == SCALING * (WIDTH + CR_OFFSET - 1)) begin
-                    cr              <= SCALING * CR_OFFSET;
-                    ci              <= ci + SCALING;
-                    if (ci == SCALING * (HEIGHT + CI_OFFSET - 1)) begin
+                //if (cr == (WIDTH - 1) * scaling + cr_offset) begin
+                if (x == WIDTH - 1) begin
+                    cr              <= cr_offset;
+                    ci              <= ci + scaling;
+
+                    x               <= 0;
+                    y               <= y + 1;
+                    //if (ci == (HEIGHT - 1) * scaling + ci_offset) begin
+                    if (y == HEIGHT - 1) begin
                         stopped     <= 1'b1;
                     end
                 end else begin
-                    cr              <= cr + SCALING;
+                    cr              <= cr + scaling;
+                    x               <= x + 1;
                 end
             end else begin
                 zr                  <= out_zr;
@@ -99,12 +108,14 @@ module mandelbrot #(
                 overflowed          <= overflow;
             end
         end else begin
-            cr                      <= SCALING * CR_OFFSET;
-            ci                      <= SCALING * CI_OFFSET;
+            cr                      <= cr_offset;
+            ci                      <= ci_offset;
             zr                      <= 0;
             zi                      <= 0;
             ctr                     <= 0;
             overflowed              <= 0;
+            x                       <= 0;
+            y                       <= 0;
 
             if (run == 1'b1) begin
                 stopped             <= 1'b0;
