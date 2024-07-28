@@ -131,5 +131,5 @@ module vga_qspi_framebuffer #(
     end
 
     /* Black out the pixels while not in the visible area */
-    assign  gray_out = (row_reset == 1 || line_reset == 1) ? 0 : pixel_buffer;
+    assign  gray_out = (row_reset == 1 || line_reset == 1) ? 0 : 4'b1111;
 endmodule
