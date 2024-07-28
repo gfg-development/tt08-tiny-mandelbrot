@@ -45,7 +45,7 @@ module mandelbrot #(
     input  wire [BITWIDTH - 1 : 0]  cr_offset,
     input  wire [BITWIDTH - 1 : 0]  ci_offset,
     output reg  [3 : 0]             ctr_out,
-    output reg                      new_ctr
+    output reg                      finished
 );
     localparam BITWIDTH_WIDTH   = $clog2(WIDTH);
     localparam BITWIDTH_HEIGHT  = $clog2(HEIGHT);
@@ -70,12 +70,9 @@ module mandelbrot #(
     reg         [BITWIDTH_WIDTH - 1 : 0]    x;
     reg         [BITWIDTH_HEIGHT - 1 : 0]   y;
 
-    always @(posedge clk) begin
-        new_ctr                     <= 1'b0;
-        
+    always @(posedge clk) begin        
         if (stopped == 1'b0) begin
             if (size == 1'b1 || ctr == max_ctr || overflowed) begin
-                new_ctr             <= 1'b1;
                 ctr                 <= 0;
                 overflowed          <= 0;
                 case (ctr_select)
@@ -87,6 +84,7 @@ module mandelbrot #(
 
                 zr                  <= 0;
                 zi                  <= 0;
+                stopped             <= 1'b1;
 
                 //if (cr == (WIDTH - 1) * scaling + cr_offset) begin
                 if (x == WIDTH - 1) begin
@@ -97,7 +95,7 @@ module mandelbrot #(
                     y               <= y + 1;
                     //if (ci == (HEIGHT - 1) * scaling + ci_offset) begin
                     if (y == HEIGHT - 1) begin
-                        stopped     <= 1'b1;
+                        finished    <= 1'b1;
                     end
                 end else begin
                     cr              <= cr + scaling + 1;
@@ -110,22 +108,25 @@ module mandelbrot #(
                 overflowed          <= overflow;
             end
         end else begin
-            cr                      <= cr_offset;
-            ci                      <= ci_offset;
-            zr                      <= 0;
-            zi                      <= 0;
-            ctr                     <= 0;
-            overflowed              <= 0;
-            x                       <= 0;
-            y                       <= 0;
-
             if (run == 1'b1) begin
+                finished            <= 1'b0;
                 stopped             <= 1'b0;
+            end
+
+            if (finished == 1'b1) begin
+                cr                 <= cr_offset;
+                ci                 <= ci_offset;
+                zr                 <= 0;
+                zi                 <= 0;
+                ctr                <= 0;
+                overflowed         <= 0;
+                x                  <= 0;
+                y                  <= 0;
             end
         end
 
         if (reset) begin
-            stopped                 <= 1'b1;
+            finished                <= 1'b1;
         end
     end
 

@@ -19,13 +19,13 @@ async def test_project(dut):
     SCALING = 4
     CR_OFFSET = - (511 * WIDTH // 640) * SCALING
     CI_OFFSET = - (HEIGHT // 2) * SCALING
-    MAX_CTR = 31
+    MAX_CTR = 15
 
     # Reset
     dut._log.info("Reset")
     dut.reset.value = 1
     dut.run.value = 0
-    dut.ctr_select.value = 1
+    dut.ctr_select.value = 0
     dut.max_ctr.value = MAX_CTR
     dut.scaling.value = SCALING - 1
     dut.cr_offset = CR_OFFSET
@@ -37,19 +37,18 @@ async def test_project(dut):
 
     dut._log.info("Test project behavior")
 
-    # Setting start flag
-    dut.run.value = 1
-    await ClockCycles(dut.clk, 1)
-    dut.run.value = 0
-
     with open("image_{}_{}_{}_{}.ppm".format(MAX_CTR, SCALING, CR_OFFSET, CI_OFFSET), "w+") as f:
         f.write("P2\r\n{} {}\r\n15\r\n".format(WIDTH, HEIGHT))
         for y in range(HEIGHT):
             print("Line: {}".format(y))
             for _ in range(WIDTH):
+                # Setting start flag
+                dut.run.value = 1
+                await ClockCycles(dut.clk, 1)
+                dut.run.value = 0
                 await RisingEdge(dut.clk)
-                while dut.new_ctr.value == 0:
+                while dut.running.value == 1:
                     await RisingEdge(dut.clk)
                 f.write("{} ".format(int(str(dut.ctr_out.value), 2)))
             f.write("\r\n")
-    assert dut.running.value == 0
+    assert dut.finished.value == 1

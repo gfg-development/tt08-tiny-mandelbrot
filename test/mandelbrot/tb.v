@@ -16,21 +16,21 @@ module tb ();
   reg [10:0]  ci_offset;
 
   wire [3:0] ctr_out;
-  wire       new_ctr;
   wire       running;
+  wire       finished;
 
   mandelbrot #(.BITWIDTH(11), .CTRWIDTH(7)) mandelbrot (
       .clk(clk),
       .reset(reset),
       .run(run),
       .running(running),
+      .finished(finished),
       .max_ctr(max_ctr),
       .ctr_select(ctr_select),
       .scaling(scaling),
       .cr_offset(cr_offset),
       .ci_offset(ci_offset),
-      .ctr_out(ctr_out),
-      .new_ctr(new_ctr)
+      .ctr_out(ctr_out)
   );
 
 endmodule
