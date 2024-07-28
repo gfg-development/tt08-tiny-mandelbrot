@@ -5,8 +5,8 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles, RisingEdge
 
-WIDTH = 640
-HEIGHT = 480
+WIDTH = 320
+HEIGHT = 240
 
 @cocotb.test()
 async def test_project(dut):
@@ -16,16 +16,17 @@ async def test_project(dut):
     clock = Clock(dut.clk, 50, units="ns")
     cocotb.start_soon(clock.start())
 
-    SCALING = 2
-    CR_OFFSET = - (511 * 640 // WIDTH) * SCALING
+    SCALING = 4
+    CR_OFFSET = - (511 * WIDTH // 640) * SCALING
     CI_OFFSET = - (HEIGHT // 2) * SCALING
+    MAX_CTR = 31
 
     # Reset
     dut._log.info("Reset")
     dut.reset.value = 1
     dut.run.value = 0
-    dut.ctr_select.value = 0
-    dut.max_ctr.value = 15
+    dut.ctr_select.value = 1
+    dut.max_ctr.value = MAX_CTR
     dut.scaling.value = SCALING - 1
     dut.cr_offset = CR_OFFSET
     dut.ci_offset = CI_OFFSET
@@ -41,7 +42,7 @@ async def test_project(dut):
     await ClockCycles(dut.clk, 1)
     dut.run.value = 0
 
-    with open("image_{}_{}_{}.ppm".format(SCALING, CR_OFFSET, CI_OFFSET), "w+") as f:
+    with open("image_{}_{}_{}_{}.ppm".format(MAX_CTR, SCALING, CR_OFFSET, CI_OFFSET), "w+") as f:
         f.write("P2\r\n{} {}\r\n15\r\n".format(WIDTH, HEIGHT))
         for y in range(HEIGHT):
             print("Line: {}".format(y))

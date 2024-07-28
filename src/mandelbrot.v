@@ -32,8 +32,8 @@
 module mandelbrot #( 
     parameter BITWIDTH      = 10,
     parameter CTRWIDTH      = 4,
-    parameter HEIGHT        = 480,
-    parameter WIDTH         = 640
+    parameter HEIGHT        = 240,
+    parameter WIDTH         = 320
 ) (
     input  wire                     clk,
     input  wire                     reset,
