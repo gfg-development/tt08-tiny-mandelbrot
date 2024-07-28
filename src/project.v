@@ -18,45 +18,61 @@ module tt_um_gfg_development_tinymandelbrot (
 
   // All output pins must be assigned. If not used, assign to 0.
   assign uio_out        = 0;
-  assign uio_oe         = 0;
-  assign uo_out[6]      = 0;
   // List all unused inputs to prevent warnings
   wire _unused = &{ena, clk, rst_n, 1'b0};
+
   wire reset;
+  assign reset = !rst_n;
 
+  // output_select == 1 --> use binary interface, 0 --> VGA interface
+  wire output_select;
+  assign output_select    = ui_in[7];
+
+  wire config_select;
+  assign config_select    = ui_in[6];
+
+  // Multiplexing IOs between the different modes
+  assign uo_out[0]  = (output_select == 1'b1) ? ctr_out[0]  : R[1];
+  assign uo_out[1]  = (output_select == 1'b1) ? ctr_out[1]  : G[1];
+  assign uo_out[2]  = (output_select == 1'b1) ? ctr_out[2]  : B[1];
+  assign uo_out[3]  = (output_select == 1'b1) ? ctr_out[3]  : vsync;
+  assign uo_out[4]  = (output_select == 1'b1) ? running     : R[0];
+  assign uo_out[5]  = (output_select == 1'b1) ? finished    : G[0];
+  assign uo_out[6]  = (output_select == 1'b1) ? 1'b0        : B[0];
+  assign uo_out[7]  = (output_select == 1'b1) ? 1'b0        : hsync;
+
+  assign uio_oe     = (output_select == 1'b1) ? 8'b00000000 : 8'b00000000;
+
+  // shift register for controlling the system from the RP2040
   reg [23 : 0]  configuration;
-
-  reg [23 : 0]  test_sr1;
-  reg [23 : 0]  test_sr2; 
-  reg [23 : 0]  test_sr3; 
-  reg [23 : 0]  test_sr4; 
-
-
   always @(posedge clk) begin
-    if (ui_in[6] == 1'b1) begin
-      configuration   <= {configuration[22 : 0], ui_in[7]};
-      test_sr1        <= {test_sr1[22 : 0], ui_in[3]};
-      test_sr2        <= {test_sr2[22 : 0], ui_in[2]};
-      test_sr3        <= {test_sr3[22 : 0], ui_in[1]};
-      test_sr4        <= {test_sr4[22 : 0], ui_in[0]};
+    if (ui_in[4] == 1'b1) begin
+      configuration   <= {configuration[22 : 0], ui_in[5]};
     end
   end
 
-  assign uo_out[5] = test_sr1[23] | test_sr2[23] | test_sr3[23] | test_sr4[23];
-
-  assign reset = !rst_n;
+  // The mandelbrot engine
+  wire [3 : 0]  ctr_out;
+  wire          running;
+  wire          finished;
   mandelbrot #(.BITWIDTH(11), .CTRWIDTH(7)) mandelbrot (
       .clk(clk),
       .reset(reset),
-      .run(ui_in[7]),
-      .running(uo_out[4]),
+      .run(ui_in[0]),
+      .running(running),
       .max_ctr(uio_in[6 : 0]),
       .scaling(configuration[23 : 22]),
       .cr_offset(configuration[10 : 0]),
       .ci_offset(configuration[21 : 11]),
-      .ctr_select(ui_in[1 : 0]),
-      .ctr_out(uo_out[3 : 0]),
-      .finished(uo_out[7])
+      .ctr_select(ui_in[2 : 1]),
+      .ctr_out(ctr_out),
+      .finished(finished)
   );
 
+  // The VGA module
+  wire [1 : 0]  R;
+  wire [1 : 0]  G;
+  wire [1 : 0]  B;
+  wire          hsync;
+  wire          vsync;
 endmodule
