@@ -24,13 +24,25 @@ module tt_um_gfg_development_tinymandelbrot (
   wire _unused = &{ena, clk, rst_n, 1'b0};
   wire reset;
 
-  reg [23:0]  configuration;
+  reg [23 : 0]  configuration;
+
+  reg [23 : 0]  test_sr1;
+  reg [23 : 0]  test_sr2; 
+  reg [23 : 0]  test_sr3; 
+  reg [23 : 0]  test_sr4; 
+
 
   always @(posedge clk) begin
     if (ui_in[6] == 1'b1) begin
       configuration   <= {configuration[22 : 0], ui_in[7]};
+      test_sr1        <= {test_sr1[22 : 0], ui_in[6]};
+      test_sr2        <= {test_sr2[22 : 0], ui_in[5]};
+      test_sr3        <= {test_sr3[22 : 0], ui_in[4]};
+      test_sr4        <= {test_sr4[22 : 0], ui_in[3]};
     end
   end
+
+  assign uo_out[5] = test_sr1[23] | test_sr2[23] | test_sr3[23] | test_sr4[23];
 
   assign reset = !rst_n;
   mandelbrot #(.BITWIDTH(11), .CTRWIDTH(7)) mandelbrot (
