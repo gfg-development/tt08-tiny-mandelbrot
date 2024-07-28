@@ -31,7 +31,9 @@
 
 module mandelbrot #( 
     parameter BITWIDTH      = 10,
-    parameter CTRWIDTH      = 4
+    parameter CTRWIDTH      = 4,
+    parameter HEIGHT        = 480,
+    parameter WIDTH         = 640
 ) (
     input  wire                     clk,
     input  wire                     reset,
@@ -45,8 +47,6 @@ module mandelbrot #(
     output reg  [3 : 0]             ctr_out,
     output reg                      new_ctr
 );
-    localparam HEIGHT       = 480;
-    localparam WIDTH        = 640;
 
     wire signed [BITWIDTH - 1 : 0]      in_cr;
     wire signed [BITWIDTH - 1 : 0]      in_ci;
@@ -89,7 +89,7 @@ module mandelbrot #(
                 //if (cr == (WIDTH - 1) * scaling + cr_offset) begin
                 if (x == WIDTH - 1) begin
                     cr              <= cr_offset;
-                    ci              <= ci + scaling;
+                    ci              <= ci + scaling + 1;
 
                     x               <= 0;
                     y               <= y + 1;
@@ -98,7 +98,7 @@ module mandelbrot #(
                         stopped     <= 1'b1;
                     end
                 end else begin
-                    cr              <= cr + scaling;
+                    cr              <= cr + scaling + 1;
                     x               <= x + 1;
                 end
             end else begin

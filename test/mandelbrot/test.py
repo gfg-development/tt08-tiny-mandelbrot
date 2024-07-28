@@ -17,7 +17,7 @@ async def test_project(dut):
     cocotb.start_soon(clock.start())
 
     SCALING = 2
-    CR_OFFSET = - (511) * SCALING
+    CR_OFFSET = - (511 * 640 // WIDTH) * SCALING
     CI_OFFSET = - (HEIGHT // 2) * SCALING
 
     # Reset
@@ -26,7 +26,7 @@ async def test_project(dut):
     dut.run.value = 0
     dut.ctr_select.value = 0
     dut.max_ctr.value = 15
-    dut.scaling.value = SCALING
+    dut.scaling.value = SCALING - 1
     dut.cr_offset = CR_OFFSET
     dut.ci_offset = CI_OFFSET
     await ClockCycles(dut.clk, 10)
