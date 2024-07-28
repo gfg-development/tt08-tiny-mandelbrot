@@ -31,7 +31,7 @@
 
 module mandelbrot #( 
     parameter BITWIDTH      = 10,
-    parameter CTRWIDTH      = 4,
+    parameter CTRWIDTH      = 7,
     parameter HEIGHT        = 240,
     parameter WIDTH         = 320
 ) (
@@ -89,7 +89,7 @@ module mandelbrot #(
                 //if (cr == (WIDTH - 1) * scaling + cr_offset) begin
                 if (x == WIDTH - 1) begin
                     cr              <= cr_offset;
-                    ci              <= ci + scaling + 1;
+                    ci              <= ci + {{(BITWIDTH - 2){1'b0}}, scaling} + 1;
 
                     x               <= 0;
                     y               <= y + 1;
@@ -98,7 +98,7 @@ module mandelbrot #(
                         finished    <= 1'b1;
                     end
                 end else begin
-                    cr              <= cr + scaling + 1;
+                    cr              <= cr + {{(BITWIDTH - 2){1'b0}}, scaling} + 1;
                     x               <= x + 1;
                 end
             end else begin
