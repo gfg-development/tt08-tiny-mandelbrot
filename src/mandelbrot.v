@@ -47,6 +47,8 @@ module mandelbrot #(
     output reg  [3 : 0]             ctr_out,
     output reg                      new_ctr
 );
+    localparam BITWIDTH_WIDTH   = $clog2(WIDTH);
+    localparam BITWIDTH_HEIGHT  = $clog2(HEIGHT);
 
     wire signed [BITWIDTH - 1 : 0]      in_cr;
     wire signed [BITWIDTH - 1 : 0]      in_ci;
@@ -65,8 +67,8 @@ module mandelbrot #(
     reg                                 stopped;
     reg                                 overflowed;
 
-    reg         [9 : 0]                 x;
-    reg         [8 : 0]                 y;
+    reg         [BITWIDTH_WIDTH - 1 : 0]    x;
+    reg         [BITWIDTH_HEIGHT - 1 : 0]   y;
 
     always @(posedge clk) begin
         new_ctr                     <= 1'b0;
