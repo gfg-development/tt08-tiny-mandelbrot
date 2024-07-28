@@ -35,10 +35,10 @@ module tt_um_gfg_development_tinymandelbrot (
   always @(posedge clk) begin
     if (ui_in[6] == 1'b1) begin
       configuration   <= {configuration[22 : 0], ui_in[7]};
-      test_sr1        <= {test_sr1[22 : 0], ui_in[6]};
-      test_sr2        <= {test_sr2[22 : 0], ui_in[5]};
-      test_sr3        <= {test_sr3[22 : 0], ui_in[4]};
-      test_sr4        <= {test_sr4[22 : 0], ui_in[3]};
+      test_sr1        <= {test_sr1[22 : 0], ui_in[3]};
+      test_sr2        <= {test_sr2[22 : 0], ui_in[2]};
+      test_sr3        <= {test_sr3[22 : 0], ui_in[1]};
+      test_sr4        <= {test_sr4[22 : 0], ui_in[0]};
     end
   end
 
