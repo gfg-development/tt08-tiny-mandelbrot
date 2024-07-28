@@ -46,6 +46,7 @@ module mandelbrot #(
     localparam WIDTH        = 640;
     localparam CR_OFFSET    = - WIDTH / 2 - WIDTH / 4 - WIDTH / 8;
     localparam CI_OFFSET    = - WIDTH / 2;
+    localparam SCALING      = 2;
 
     wire signed [BITWIDTH - 1 : 0]      in_cr;
     wire signed [BITWIDTH - 1 : 0]      in_ci;
@@ -82,14 +83,14 @@ module mandelbrot #(
                 zr                  <= 0;
                 zi                  <= 0;
 
-                if (cr == WIDTH + CR_OFFSET - 1) begin
-                    cr              <= CR_OFFSET;
-                    ci              <= ci + 1;
-                    if (ci == HEIGHT + CI_OFFSET - 1) begin
+                if (cr == SCALING * (WIDTH + CR_OFFSET - 1)) begin
+                    cr              <= SCALING * CR_OFFSET;
+                    ci              <= ci + SCALING;
+                    if (ci == SCALING * (HEIGHT + CI_OFFSET - 1)) begin
                         stopped     <= 1'b1;
                     end
                 end else begin
-                    cr              <= cr + 1;
+                    cr              <= cr + SCALING;
                 end
             end else begin
                 zr                  <= out_zr;
@@ -98,8 +99,8 @@ module mandelbrot #(
                 overflowed          <= overflow;
             end
         end else begin
-            cr                      <= CR_OFFSET;
-            ci                      <= CI_OFFSET;
+            cr                      <= SCALING * CR_OFFSET;
+            ci                      <= SCALING * CI_OFFSET;
             zr                      <= 0;
             zi                      <= 0;
             ctr                     <= 0;
