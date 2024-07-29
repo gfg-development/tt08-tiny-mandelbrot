@@ -28,10 +28,6 @@ module tt_um_gfg_development_tinymandelbrot (
     wire output_select;
     assign output_select    = ui_in[7];
 
-    // output_select == 1 --> use binary interface, 0 --> VGA interface
-    wire config_select;
-    assign config_select    = ui_in[6];
-
     // Multiplexing IOs between the different modes
     assign uo_out[0]  = (output_select == 1'b1) ? ctr_out[0]  : R[1];
     assign uo_out[1]  = (output_select == 1'b1) ? ctr_out[1]  : G[1];
@@ -54,10 +50,11 @@ module tt_um_gfg_development_tinymandelbrot (
     wire [3 : 0]  ctr_out;
     wire          running;
     wire          finished;
+    wire          run_pixel;
     mandelbrot #(.BITWIDTH(11), .CTRWIDTH(7)) mandelbrot (
         .clk(clk),
         .reset(reset),
-        .run(ui_in[0]),
+        .run(run_pixel),
         .running(running),
         .max_ctr(configuration[32 : 26]),
         .scaling(configuration[23 : 22]),
@@ -70,10 +67,10 @@ module tt_um_gfg_development_tinymandelbrot (
 
     reg l_running;
     always @(posedge clk) begin
-        l_running <= running;
+        l_running       <= running;
     end
     wire valid_data;
-    valid_data = (running == 1'b0 && l_running == 1'b1);
+    assign valid_data   = (running == 1'b0 && l_running == 1'b1);
 
 
     // The VGA module
@@ -83,6 +80,8 @@ module tt_um_gfg_development_tinymandelbrot (
     wire [3 : 0]  gray;
     wire          hsync;
     wire          vsync;
+
+    wire          wrote_data;
 
     assign R = gray[3 : 2];
     assign G = gray[2 : 1];
@@ -100,10 +99,52 @@ module tt_um_gfg_development_tinymandelbrot (
         .data_out(uio_out),
         .data_in(uio_in),
 
-        .write_mode(0),
+        .write_mode(write_mode),
         .write_data_in(ctr_out),
-        .reset_write_ptr(0),
+        .reset_write_ptr(reset_write_ptr),
         .write_data(valid_data),
-        .wrote_data(0)
+        .wrote_data(wrote_data)
     )
+
+    // The statemachine
+    reg  [1 : 0]    state;
+    reg             write_mode;
+    reg             reset_write_ptr;
+
+    always @(posedge clk) begin
+        reset_write_ptr                 <= 1'b0;
+        run_pixel                       <= 1'b0;
+        if (reset == 1'b1) begin
+            state           <= 0;
+            write_mode      <= 1'b0;
+        end else begin
+            case (param)
+                0:
+                    if (ui_in[0] == 1'b1) begin
+                        state           <= 1;
+                        write_mode      <= 1'b1;
+                        reset_write_ptr <= 1'b1;
+                    end
+
+                1: 
+                    if (wrote_data == 1'b1) begin
+                        run_pixel       <= 1'b1;
+                        state           <= 2;
+                    end
+
+                2:
+                    if (valid_data == 1'b1) begin
+                        if (finished == 1'b1) begin
+                            write_mode  <= 1'b0;
+                            state       <= 0;
+                        end else begin
+                            state       <= 1;
+                        end 
+                    end
+
+                default: 
+                    state   <= 0;
+            endcase
+        end
+    end
 endmodule
