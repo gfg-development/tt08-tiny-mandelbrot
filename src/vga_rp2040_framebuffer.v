@@ -19,7 +19,7 @@
 
 `default_nettype none
 
-module vga_qspi_framebuffer #(
+module vga_rp2040_framebuffer #(
     parameter LINE_VISIBLE      = 640,
     parameter LINE_FRONT_PORCH  = 16,
     parameter LINE_SYNC_PULSE   = 96,

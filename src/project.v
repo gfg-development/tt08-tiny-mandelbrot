@@ -45,10 +45,10 @@ module tt_um_gfg_development_tinymandelbrot (
     assign uio_oe     = (output_select == 1'b1) ? 8'b00000000 : 8'b00000000;
 
     // shift register for controlling the system from the RP2040
-    reg [23 : 0]  configuration;
+    reg [32 : 0]  configuration;
     always @(posedge clk) begin
         if (ui_in[4] == 1'b1) begin
-            configuration   <= {configuration[22 : 0], ui_in[5]};
+            configuration   <= {configuration[31 : 0], ui_in[5]};
         end
     end
 
@@ -61,11 +61,11 @@ module tt_um_gfg_development_tinymandelbrot (
         .reset(reset),
         .run(ui_in[0]),
         .running(running),
-        .max_ctr(uio_in[6 : 0]),
+        .max_ctr(configuration[32 : 26]),
         .scaling(configuration[23 : 22]),
         .cr_offset(configuration[10 : 0]),
         .ci_offset(configuration[21 : 11]),
-        .ctr_select(ui_in[2 : 1]),
+        .ctr_select(configuration[25 : 24]),
         .ctr_out(ctr_out),
         .finished(finished)
     );
