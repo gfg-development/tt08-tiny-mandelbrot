@@ -42,7 +42,7 @@ module tt_um_gfg_development_tinymandelbrot (
     reg [32 : 0]  configuration;
     always @(posedge clk) begin
         if (ui_in[4] == 1'b1) begin
-            configuration   <= {configuration[31 : 0], ui_in[5]};
+            configuration   <= {ui_in[5], configuration[32 : 1]};
         end
     end
 
@@ -140,7 +140,7 @@ module tt_um_gfg_development_tinymandelbrot (
                     begin
                         if (wrote_data == 1'b1) begin
                             run_pixel       <= 1'b1;
-                            state           <= 2;
+                            state           <= 3;
                         end
                     end
 
@@ -152,7 +152,7 @@ module tt_um_gfg_development_tinymandelbrot (
                                 write_mode  <= 1'b0;
                                 state       <= 0;
                             end else begin
-                                state       <= 1;
+                                state       <= 2;
                             end 
                         end
                     end

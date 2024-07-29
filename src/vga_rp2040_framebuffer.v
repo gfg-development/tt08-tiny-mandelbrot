@@ -131,7 +131,7 @@ module vga_rp2040_framebuffer #(
     end
 
     /* Black out the pixels while not in the visible area */
-    assign  gray_out = (row_reset == 1 || line_reset == 1) ? 0 : 4'b1111;
+    assign  gray_out = (row_reset == 1 || line_reset == 1 || state != 0) ? 0 : pixel_buffer;
 
     /* Statemachine for handling the frame buffer */
     reg [1 : 0] state;
@@ -141,10 +141,18 @@ module vga_rp2040_framebuffer #(
 
     wire        reset_ptr;
     reg         doit;
+    reg [1 : 0] l_doit;
+    reg [3 : 0] pixel_buffer;
 
     always @(posedge clk) begin
         wrote_data                      <= 1'b0;
         doit                            <= 1'b0;
+        l_doit                          <= {l_doit[1 : 0], doit};
+
+        if (l_doit[0] ==  1'b1) begin
+           pixel_buffer                 <= data_in[3 : 0]; 
+        end
+
         if (rst_n == 1'b0) begin
             state                       <= 0;
             write_bit                   <= 1'b0;
@@ -182,7 +190,15 @@ module vga_rp2040_framebuffer #(
                             state           <= 0;
                         end else if (write_data == 1'b1) begin
                             doit            <= 1'b1;
+                            state           <= 3;
                         end
+                    end
+                
+                // Wait state for writing
+                3:
+                    begin
+                        wrote_data      <= 1'b1;
+                        state           <= 2;
                     end
 
                 default:

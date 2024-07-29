@@ -7,18 +7,18 @@ from cocotb.triggers import ClockCycles, RisingEdge
 
 
 @cocotb.test()
-async def test_project(dut):
+async def test_rp2040_mode(dut):
     dut._log.info("Start")
 
-    # Set the clock period to 10 us (100 KHz)
-    clock = Clock(dut.clk, 10, units="us")
+    # Set the clock period to 50 ns (20 MHz)
+    clock = Clock(dut.clk, 50, units="ns")
     cocotb.start_soon(clock.start())
 
     # Reset
     dut._log.info("Reset")
     dut.ena.value = 1
-    dut.ui_in.value = 0
-    dut.uio_in.value = 15
+    dut.ui_in.value = 128
+    dut.uio_in.value = 0
     dut.rst_n.value = 0
     await ClockCycles(dut.clk, 10)
     dut.rst_n.value = 1
@@ -27,20 +27,24 @@ async def test_project(dut):
 
     dut._log.info("Test project behavior")
 
-    assert dut.user_project.mandelbrot.running.value == 0
+    # Load configuration via shift register
+    configuration = 0b000111100000000000000000000000000
 
-    # Setting start flag
-    dut.ui_in.value = 128
-    await ClockCycles(dut.clk, 1)
-    dut.ui_in.value = 0
+    dut.ui_in[4].value = 1
 
-    with open("image.ppm", "w+") as f:
-        f.write("P2\r\n640 480\r\n15\r\n")
-        for y in range(480):
-            print("Line: {}".format(y))
-            for _ in range(640):
-                await RisingEdge(dut.user_project.mandelbrot.new_ctr)
-                await ClockCycles(dut.clk, 1)
-                f.write("{} ".format(int(str(dut.user_project.mandelbrot.ctr_out.value), 2)))
-            f.write("\r\n")
-    assert dut.user_project.mandelbrot.running.value == 0
+    for _ in range(33):
+        dut.ui_in[5].value = configuration & 0x1
+        configuration = configuration >> 1
+        await ClockCycles(dut.clk, 1)
+
+
+    dut.ui_in[4].value = 0
+
+    await ClockCycles(dut.clk, 10)
+    
+    # Start rendering
+    dut.ui_in[0].value = 1
+    await ClockCycles(dut.clk, 128)
+
+    # Finish flag is set
+    assert dut.uo_out[5].value == 1
