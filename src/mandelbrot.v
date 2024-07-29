@@ -86,14 +86,12 @@ module mandelbrot #(
                 zi                  <= 0;
                 stopped             <= 1'b1;
 
-                //if (cr == (WIDTH - 1) * scaling + cr_offset) begin
                 if (x == WIDTH - 1) begin
                     cr              <= cr_offset;
                     ci              <= ci + {{(BITWIDTH - 2){1'b0}}, scaling} + 1;
 
                     x               <= 0;
                     y               <= y + 1;
-                    //if (ci == (HEIGHT - 1) * scaling + ci_offset) begin
                     if (y == HEIGHT - 1) begin
                         finished    <= 1'b1;
                     end
