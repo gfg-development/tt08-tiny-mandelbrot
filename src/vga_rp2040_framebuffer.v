@@ -40,9 +40,9 @@ module vga_rp2040_framebuffer #(
     output wire [3 : 0]                     gray_out,               // the gray scale pixel value
 
     /* QSPI signals */
-    output reg  [7 : 0]                     data_dir,
+    output wire [7 : 0]                     data_dir,
     input  wire [7 : 0]                     data_in,
-    output reg  [7 : 0]                     data_out,
+    output wire [7 : 0]                     data_out,
 
     /* Write signals */
     input wire                              write_mode,
@@ -133,7 +133,66 @@ module vga_rp2040_framebuffer #(
     /* Black out the pixels while not in the visible area */
     assign  gray_out = (row_reset == 1 || line_reset == 1) ? 0 : 4'b1111;
 
-    assign data_dir = 0;
-    assign data_out = 0;
-    assign wrote_data = 0;
+    /* Statemachine for handling the frame buffer */
+    reg [1 : 0] state;
+    reg [3 : 0] counter;
+    reg         write_bit;
+    reg         write_direction;
+
+    wire        reset_ptr;
+    reg         doit;
+
+    always @(posedge clk) begin
+        wrote_data                      <= 1'b0;
+        doit                            <= 1'b0;
+        if (rst_n == 1'b0) begin
+            state                       <= 0;
+            write_bit                   <= 1'b0;
+            write_direction             <= 1'b0;
+        end else begin
+           case (state)
+                // Idle in read mode
+                0: 
+                    begin
+                        if (write_mode == 1'b1) begin
+                            state           <= 1;
+                            counter         <= 0;
+                            write_bit       <= 1'b1;
+                        end else begin
+                            
+                        end
+                    end
+
+                // Wait-stage to get into write mode
+                1:
+                    begin
+                        counter             <= counter + 1;
+                        if (counter == 15) begin
+                            write_direction <= 1'b0;
+                            wrote_data      <= 1'b1;
+                            state           <= 2;
+                        end
+                    end
+
+                // Write mode idle
+                2:
+                    begin
+                        if (write_mode == 1'b0) begin
+                            write_bit       <= 1'b0;
+                            state           <= 0;
+                        end else if (write_data == 1'b1) begin
+                            doit            <= 1'b1;
+                        end
+                    end
+
+                default:
+                    state   <= 0;
+            endcase 
+        end
+    end
+
+    assign reset_ptr    = (write_mode == 1'b1) ? reset_write_ptr : h_sync;
+
+    assign data_dir = {4'b1110, {4{write_direction}}};
+    assign data_out = {write_bit, reset_ptr, doit, 1'b0 , write_data_in};
 endmodule

@@ -121,28 +121,40 @@ module tt_um_gfg_development_tinymandelbrot (
             case (state)
                 // Wait for start of rendering
                 0:
-                    if (ui_in[0] == 1'b1) begin
-                        state           <= 1;
-                        write_mode      <= 1'b1;
-                        reset_write_ptr <= 1'b1;
+                    begin
+                        if (ui_in[0] == 1'b1) begin
+                            state           <= 1;
+                            write_mode      <= 1'b1;
+                        end
+                    end
+
+                // Reset the write pointer
+                1: 
+                    begin
+                        reset_write_ptr     <= 1'b1;
+                        state               <= 2;
                     end
 
                 // Wait for framebuffer to be ready to write next pixel
-                1: 
-                    if (wrote_data == 1'b1) begin
-                        run_pixel       <= 1'b1;
-                        state           <= 2;
+                2: 
+                    begin
+                        if (wrote_data == 1'b1) begin
+                            run_pixel       <= 1'b1;
+                            state           <= 2;
+                        end
                     end
 
                 // Write next pixel
-                2:
-                    if (valid_data == 1'b1) begin
-                        if (finished == 1'b1) begin
-                            write_mode  <= 1'b0;
-                            state       <= 0;
-                        end else begin
-                            state       <= 1;
-                        end 
+                3:
+                    begin
+                        if (valid_data == 1'b1) begin
+                            if (finished == 1'b1) begin
+                                write_mode  <= 1'b0;
+                                state       <= 0;
+                            end else begin
+                                state       <= 1;
+                            end 
+                        end
                     end
 
                 default: 
