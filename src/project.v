@@ -37,9 +37,16 @@ module tt_um_gfg_development_tinymandelbrot (
 
     // shift register for controlling the system from the RP2040
     reg [32 : 0]  configuration;
+    reg [2 : 0]   l_sdata;
+    reg [2 : 0]   l_sclk;
+    reg [2 : 0]   l_sen;
     always @(posedge clk) begin
-        if (ui_in[4] == 1'b1) begin
-            configuration   <= {ui_in[5], configuration[32 : 1]};
+        l_sdata <= {l_sdata[1 : 0], ui_in[5]};
+        l_sclk  <= {l_sclk[1 : 0], ui_in[6]};
+        l_sen   <= {l_sen[1 : 0], ui_in[4]};
+
+        if (l_sen[2] == 1'b1 && l_sclk[2] == 1'b0 && l_sclk[1] == 1'b1) begin
+            configuration   <= {l_sdata[2], configuration[32 : 1]};
         end
     end
 
@@ -107,10 +114,12 @@ module tt_um_gfg_development_tinymandelbrot (
     reg  [1 : 0]    state;
     reg             write_mode;
     reg             reset_write_ptr;
+    reg  [1 : 0]    l_start;
 
     always @(posedge clk) begin
         reset_write_ptr                 <= 1'b0;
         run_pixel                       <= 1'b0;
+        l_start                         <= {l_start[0], ui_in[0]};
         if (reset == 1'b1) begin
             state           <= 0;
             write_mode      <= 1'b0;
@@ -119,7 +128,7 @@ module tt_um_gfg_development_tinymandelbrot (
                 // Wait for start of rendering
                 0:
                     begin
-                        if (ui_in[0] == 1'b1) begin
+                        if (l_start[1] == 1'b1) begin
                             state           <= 1;
                             write_mode      <= 1'b1;
                         end
