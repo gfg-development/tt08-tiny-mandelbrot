@@ -65,7 +65,7 @@ async def test_rp2040_mode(dut):
     await ClockCycles(dut.clk, 1)
     dut.ui_in[0].value = 0
 
-    await FallingEdge(dut.user_project.finished)
+    await FallingEdge(dut.finished)
 
     golden_image = read_ppm("image_15_4_-1020_-480.golden.ppm")
     image = []
@@ -75,7 +75,7 @@ async def test_rp2040_mode(dut):
         for y in range(HEIGHT):
             dut._log.info("Line: {}".format(y))
             for _ in range(WIDTH):
-                await FallingEdge(dut.user_project.running)
+                await FallingEdge(dut.running)
                 await RisingEdge(dut.clk)
                 pixel_value = int(str(dut.uo_out.value[4 : 7]), 2)
                 image.append(pixel_value)
@@ -118,6 +118,6 @@ async def test_vga_mode(dut):
     dut.ui_in[0].value = 0
 
     # Wait for image to be generated
-    await RisingEdge(dut.user_project.finished)
+    await RisingEdge(dut.finished)
 
     await ClockCycles(dut.clk, 1024*1024)

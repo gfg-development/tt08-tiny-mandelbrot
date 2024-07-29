@@ -23,6 +23,12 @@ module tb ();
   wire [7:0] uio_out;
   wire [7:0] uio_oe;
 
+  wire       running;
+  wire       finished;
+
+  assign running  = uo_out[4];
+  assign finished = uo_out[5];
+
   // Replace tt_um_example with your module name:
   tt_um_gfg_development_tinymandelbrot user_project (
 
