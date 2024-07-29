@@ -132,4 +132,8 @@ module vga_rp2040_framebuffer #(
 
     /* Black out the pixels while not in the visible area */
     assign  gray_out = (row_reset == 1 || line_reset == 1) ? 0 : 4'b1111;
+
+    assign data_dir = 0;
+    assign data_out = 0;
+    assign wrote_data = 0;
 endmodule

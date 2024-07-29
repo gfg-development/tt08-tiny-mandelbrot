@@ -50,7 +50,7 @@ module tt_um_gfg_development_tinymandelbrot (
     wire [3 : 0]  ctr_out;
     wire          running;
     wire          finished;
-    wire          run_pixel;
+    reg           run_pixel;
     mandelbrot #(.BITWIDTH(11), .CTRWIDTH(7)) mandelbrot (
         .clk(clk),
         .reset(reset),
@@ -118,7 +118,7 @@ module tt_um_gfg_development_tinymandelbrot (
             state           <= 0;
             write_mode      <= 1'b0;
         end else begin
-            case (param)
+            case (state)
                 // Wait for start of rendering
                 0:
                     if (ui_in[0] == 1'b1) begin
