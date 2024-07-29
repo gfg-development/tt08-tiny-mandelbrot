@@ -3,8 +3,15 @@
 
 import cocotb
 from cocotb.clock import Clock
-from cocotb.triggers import ClockCycles, RisingEdge
+from cocotb.triggers import ClockCycles, RisingEdge, FallingEdge
 
+WIDTH = 320
+HEIGHT = 240
+
+SCALING = 4
+CR_OFFSET = - (511 * WIDTH // 640) * SCALING
+CI_OFFSET = - (HEIGHT // 2) * SCALING
+MAX_CTR = 15
 
 @cocotb.test()
 async def test_rp2040_mode(dut):
@@ -44,7 +51,20 @@ async def test_rp2040_mode(dut):
     
     # Start rendering
     dut.ui_in[0].value = 1
-    await ClockCycles(dut.clk, 128)
+    await ClockCycles(dut.clk, 1)
+    dut.ui_in[0].value = 0
+
+    await FallingEdge(dut.user_project.finished)
+
+    with open("image_{}_{}_{}_{}.ppm".format(MAX_CTR, SCALING, CR_OFFSET, CI_OFFSET), "w+") as f:
+        f.write("P2\r\n{} {}\r\n15\r\n".format(WIDTH, HEIGHT))
+        for y in range(HEIGHT):
+            print("Line: {}".format(y))
+            for _ in range(WIDTH):
+                await FallingEdge(dut.user_project.running)
+                await RisingEdge(dut.clk)
+                f.write("{} ".format(int(str(dut.uo_out.value[4 : 7]), 2)))
+            f.write("\r\n")
 
     # Finish flag is set
     assert dut.uo_out[5].value == 1
