@@ -29,12 +29,17 @@ async def configure(dut):
     configuration = (MAX_CTR << 26) | ((SCALING - 1) << 22) | ((CI_OFFSET & 0x7FF) << 11) | (CR_OFFSET & 0x7FF)
 
     dut.ui_in[4].value = 1
+    dut.ui_in[6].value = 0
 
     for _ in range(33):
         dut.ui_in[5].value = configuration & 0x1
         configuration = configuration >> 1
+        dut.ui_in[6].value = 0
+        await ClockCycles(dut.clk, 1)
+        dut.ui_in[6].value = 1
         await ClockCycles(dut.clk, 1)
     dut.ui_in[4].value = 0
+    dut.ui_in[6].value = 0
     await ClockCycles(dut.clk, 10)
 
 @cocotb.test()
