@@ -3,6 +3,7 @@
 .vscode
 *.vcd
 *.ppm
+!*.golden.ppm
 runs
 tt_submission
 src/user_config.json
