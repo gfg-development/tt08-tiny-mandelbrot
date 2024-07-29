@@ -42,8 +42,6 @@ module tt_um_gfg_development_tinymandelbrot (
     assign uo_out[6]  = (output_select == 1'b1) ? 1'b0        : B[0];
     assign uo_out[7]  = (output_select == 1'b1) ? 1'b0        : hsync;
 
-    assign uio_oe     = (output_select == 1'b1) ? 8'b00000000 : 8'b00000000;
-
     // shift register for controlling the system from the RP2040
     reg [32 : 0]  configuration;
     always @(posedge clk) begin
@@ -70,16 +68,42 @@ module tt_um_gfg_development_tinymandelbrot (
         .finished(finished)
     );
 
+    reg l_running;
+    always @(posedge clk) begin
+        l_running <= running;
+    end
+    wire valid_data;
+    valid_data = (running == 1'b0 && l_running == 1'b1);
+
+
     // The VGA module
     wire [1 : 0]  R;
     wire [1 : 0]  G;
     wire [1 : 0]  B;
+    wire [3 : 0]  gray;
     wire          hsync;
     wire          vsync;
 
-    assign R = 0;
-    assign G = 0;
-    assign B = 0;
-    assign hsync = 0;
-    assign vsync = 0;
+    assign R = gray[3 : 2];
+    assign G = gray[2 : 1];
+    assign B = gray[1 : 0];
+
+    vga_rp2040_framebuffer vga (
+        .clk(clk),
+        .rst_n(rst_n),
+
+        .v_sync_out(vsync),
+        .h_sync_out(hsync),
+        .gray_out(gray),
+
+        .data_dir(uio_oe),
+        .data_out(uio_out),
+        .data_in(uio_in),
+
+        .write_mode(0),
+        .write_data_in(ctr_out),
+        .reset_write_ptr(0),
+        .write_data(valid_data),
+        .wrote_data(0)
+    )
 endmodule

@@ -40,10 +40,9 @@ module vga_rp2040_framebuffer #(
     output wire [3 : 0]                     gray_out,               // the gray scale pixel value
 
     /* QSPI signals */
-    output reg  [3 : 0]                     data_dir,
-    input  wire [3 : 0]                     data_in,
-    output reg  [3 : 0]                     data_out,
-    output reg                              chip_enable,
+    output reg  [7 : 0]                     data_dir,
+    input  wire [7 : 0]                     data_in,
+    output reg  [7 : 0]                     data_out,
 
     /* Write signals */
     input wire                              write_mode,

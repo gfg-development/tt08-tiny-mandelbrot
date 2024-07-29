@@ -127,6 +127,7 @@ module mandelbrot #(
 
         if (reset) begin
             finished                <= 1'b1;
+            stopped                 <= 1'b1;
         end
     end
 
