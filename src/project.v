@@ -104,7 +104,7 @@ module tt_um_gfg_development_tinymandelbrot (
         .reset_write_ptr(reset_write_ptr),
         .write_data(valid_data),
         .wrote_data(wrote_data)
-    )
+    );
 
     // The statemachine
     reg  [1 : 0]    state;
@@ -119,6 +119,7 @@ module tt_um_gfg_development_tinymandelbrot (
             write_mode      <= 1'b0;
         end else begin
             case (param)
+                // Wait for start of rendering
                 0:
                     if (ui_in[0] == 1'b1) begin
                         state           <= 1;
@@ -126,12 +127,14 @@ module tt_um_gfg_development_tinymandelbrot (
                         reset_write_ptr <= 1'b1;
                     end
 
+                // Wait for framebuffer to be ready to write next pixel
                 1: 
                     if (wrote_data == 1'b1) begin
                         run_pixel       <= 1'b1;
                         state           <= 2;
                     end
 
+                // Write next pixel
                 2:
                     if (valid_data == 1'b1) begin
                         if (finished == 1'b1) begin
