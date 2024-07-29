@@ -13,6 +13,19 @@ CR_OFFSET = - (511 * WIDTH // 640) * SCALING
 CI_OFFSET = - (HEIGHT // 2) * SCALING
 MAX_CTR = 15
 
+async def configure(dut):
+    # Load configuration via shift register
+    configuration = (MAX_CTR << 26) | ((SCALING - 1) << 22) | ((CI_OFFSET & 0x7FF) << 11) | (CR_OFFSET & 0x7FF)
+
+    dut.ui_in[4].value = 1
+
+    for _ in range(33):
+        dut.ui_in[5].value = configuration & 0x1
+        configuration = configuration >> 1
+        await ClockCycles(dut.clk, 1)
+    dut.ui_in[4].value = 0
+    await ClockCycles(dut.clk, 10)
+
 @cocotb.test()
 async def test_rp2040_mode(dut):
     dut._log.info("Start")
@@ -34,20 +47,7 @@ async def test_rp2040_mode(dut):
 
     dut._log.info("Test project behavior")
 
-    # Load configuration via shift register
-    configuration = 0b000111100000000000000000000000000
-
-    dut.ui_in[4].value = 1
-
-    for _ in range(33):
-        dut.ui_in[5].value = configuration & 0x1
-        configuration = configuration >> 1
-        await ClockCycles(dut.clk, 1)
-
-
-    dut.ui_in[4].value = 0
-
-    await ClockCycles(dut.clk, 10)
+    await configure(dut)
     
     # Start rendering
     dut.ui_in[0].value = 1
