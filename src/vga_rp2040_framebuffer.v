@@ -167,7 +167,15 @@ module vga_rp2040_framebuffer #(
                             counter         <= 0;
                             write_bit       <= 1'b1;
                         end else begin
-                            
+                            if (line_reset == 1'b0) begin
+                                if (pixel_ctr == LINE_VISIBLE + LINE_FRONT_PORCH + LINE_SYNC_PULSE + LINE_BACK_PORCH - 2) begin
+                                    doit    <= 1'b1;
+                                end
+
+                                if (row_reset == 1'b0) begin
+                                    doit    <= !pixel_ctr[0];
+                                end
+                            end
                         end
                     end
 
