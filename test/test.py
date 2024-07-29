@@ -45,7 +45,7 @@ async def test_rp2040_mode(dut):
 
     await ClockCycles(dut.clk, 10)
 
-    dut._log.info("Test project behavior")
+    dut._log.info("Test project behavior in RP2040 mode")
 
     await configure(dut)
     
@@ -89,7 +89,7 @@ async def test_vga_mode(dut):
 
     await ClockCycles(dut.clk, 10)
 
-    dut._log.info("Test project behavior")
+    dut._log.info("Test project behavior in VGA mode")
 
     await configure(dut)
     
