@@ -65,12 +65,18 @@ async def test_rp2040_mode(dut):
 
     await configure(dut)
     
+    dut._log.info("Configured parameters")
+
     # Start rendering
     dut.ui_in[0].value = 1
     await ClockCycles(dut.clk, 1)
     dut.ui_in[0].value = 0
 
+    dut._log.info("Requested rendering")
+
     await FallingEdge(dut.finished)
+
+    dut._log.info("Rendering started")
 
     golden_image = read_ppm("image_15_4_-1020_-480.golden.ppm")
     image = []
@@ -116,13 +122,15 @@ async def test_vga_mode(dut):
     dut._log.info("Test project behavior in VGA mode")
 
     await configure(dut)
+
+    dut._log.info("Configured parameters")
     
     # Start rendering
     dut.ui_in[0].value = 1
     await ClockCycles(dut.clk, 1)
     dut.ui_in[0].value = 0
 
-    # Wait for image to be generated
-    await RisingEdge(dut.finished)
+    dut._log.info("Requested rendering")
 
+    # Wait for image to be generated
     await ClockCycles(dut.clk, 1024*1024)
