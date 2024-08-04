@@ -1,6 +1,0 @@
-*.jou
-*.log
-*.str
-.Xil
-project/*
-!project/mandelbrot.tcl

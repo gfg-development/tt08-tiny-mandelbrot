@@ -1,0 +1,7 @@
+*.jou
+*.log
+*.str
+.Xil
+project/*
+!project/mandelbrot_cora_z7.tcl
+!project/mandelbrot_arty_z7.tcl

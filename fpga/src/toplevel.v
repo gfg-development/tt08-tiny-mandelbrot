@@ -20,10 +20,12 @@
 
 module toplevel (
     input  wire         sys_clk_pin,
-    output wire [4 : 1] ja_p,
-    output wire [4 : 1] ja_n,
-    input  wire [1 : 0] sw,
-    input  wire [3 : 0] btn,
+    output wire [3 : 0] VGA_R,
+    output wire [3 : 0] VGA_G,
+    output wire [3 : 0] VGA_B,
+    output wire         VGA_HS_O,
+    output wire         VGA_VS_O,
+    input  wire [1 : 0] btn,
     output wire [0 : 0] led
 );
     wire [7 : 0]  ui_in;
@@ -46,15 +48,17 @@ module toplevel (
         .uio_oe(uio_oe)
     );
 
-    assign ja_p[1] = uo_out[0];
-    assign ja_p[2] = uo_out[2]; 
-    assign ja_p[3] = uo_out[4]; 
-    assign ja_p[4] = uo_out[6]; 
+    assign VGA_R[0] = uo_out[4]; 
+    assign VGA_R[1] = uo_out[1]; 
 
-    assign ja_n[1] = uo_out[1];
-    assign ja_n[2] = uo_out[3]; 
-    assign ja_n[3] = uo_out[5]; 
-    assign ja_n[4] = uo_out[7];
+    assign VGA_G[0] = uo_out[5]; 
+    assign VGA_G[1] = uo_out[2]; 
+
+    assign VGA_B[0] = uo_out[6]; 
+    assign VGA_B[1] = uo_out[3]; 
+
+    assign VGA_VS_O = uo_out[3]; 
+    assign VGA_HS_O = uo_out[7];
 
     framebuffer framebuffer (
         .clk(clk),
