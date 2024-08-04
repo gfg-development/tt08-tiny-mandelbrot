@@ -134,7 +134,7 @@ module tt_um_gfg_development_tinymandelbrot (
                     begin
                         reset_write_ptr     <= 1'b1;
                         run_pixel           <= 1'b1;
-                        state               <= 2;
+                        state               <= 3;
                     end
 
                 // Wait for framebuffer to be ready to write next pixel

@@ -67,13 +67,6 @@ async def test_rp2040_mode(dut):
     
     dut._log.info("Configured parameters")
 
-    # Start rendering
-    dut.ui_in[0].value = 1
-    await ClockCycles(dut.clk, 1)
-    dut.ui_in[0].value = 0
-
-    dut._log.info("Requested rendering")
-
     await FallingEdge(dut.finished)
 
     dut._log.info("Rendering started")
