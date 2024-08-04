@@ -215,7 +215,7 @@ module vga_rp2040_framebuffer #(
         end
     end
 
-    assign reset_ptr    = (write_mode == 1'b1) ? reset_write_ptr : h_sync;
+    assign reset_ptr    = (write_mode == 1'b1) ? reset_write_ptr : v_sync;
 
     assign data_dir = {4'b1110, {4{write_direction}}};
     assign data_out = {write_bit, reset_ptr, doit, 1'b0 , write_data_in};
