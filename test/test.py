@@ -28,19 +28,18 @@ async def configure(dut):
     # Load configuration via shift register
     configuration = (MAX_CTR << 26) | ((SCALING - 1) << 22) | ((CI_OFFSET & 0x7FF) << 11) | (CR_OFFSET & 0x7FF)
 
-    dut.ui_in[4].value = 1
-    dut.ui_in[6].value = 0
+    dut.ui_in[0].value = 1
+    dut.ui_in[2].value = 0
 
     for _ in range(33):
-        dut.ui_in[5].value = configuration & 0x1
+        dut.ui_in[1].value = configuration & 0x1
         configuration = configuration >> 1
-        dut.ui_in[6].value = 0
+        dut.ui_in[2].value = 0
         await ClockCycles(dut.clk, 1)
-        dut.ui_in[6].value = 1
+        dut.ui_in[2].value = 1
         await ClockCycles(dut.clk, 1)
-    dut.ui_in[4].value = 0
-    dut.ui_in[6].value = 0
-    await ClockCycles(dut.clk, 10)
+    dut.ui_in[0].value = 0
+    dut.ui_in[2].value = 0
 
 @cocotb.test()
 async def test_rp2040_mode(dut):
@@ -53,7 +52,7 @@ async def test_rp2040_mode(dut):
     # Reset
     dut._log.info("Reset")
     dut.ena.value = 1
-    dut.ui_in.value = 128
+    dut.ui_in.value = 8
     dut.uio_in.value = 0
     dut.rst_n.value = 0
     await ClockCycles(dut.clk, 10)
