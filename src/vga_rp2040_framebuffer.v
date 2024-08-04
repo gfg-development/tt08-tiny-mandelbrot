@@ -61,7 +61,7 @@ module vga_rp2040_framebuffer #(
     assign h_sync_out           = h_sync;
 
     /* Counter and state machine for pixels in a line */
-    reg  [WIDTH_PIXEL_CTR - 1 : 0]  pixel_ctr;
+    reg  [WIDTH_PIXEL_CTR - 1 : 0]  pixel_ctr       = 0; // init value only for simulation, for implementation a random value is enough
     reg                             h_sync;
     reg                             new_line;
     reg                             row_reset;
@@ -98,7 +98,7 @@ module vga_rp2040_framebuffer #(
     end
 
     /* Counter and state machine for lines in a frame */
-    reg  [WIDTH_LINE_CTR - 1 : 0]   line_ctr;
+    reg  [WIDTH_LINE_CTR - 1 : 0]   line_ctr    = 0; // init value only for simulation, for implementation a random value is enough;
     reg                             v_sync;
     reg                             line_reset;
     always @(posedge clk) begin

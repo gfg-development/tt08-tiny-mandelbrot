@@ -25,8 +25,8 @@
     input  wire      in,
     output wire      out
  );
-    reg [31 : 0]        counter;
-    reg                 state;
+    reg [31 : 0]        counter     = 0;
+    reg                 state       = 1'b0;
 
     always @(posedge clk) begin
         if (state != in) begin

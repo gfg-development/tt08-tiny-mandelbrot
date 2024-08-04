@@ -18,7 +18,9 @@
 
 `default_nettype none
 
-module toplevel (
+module toplevel #(
+    parameter DEBOUNCE = 125000
+ ) (
     input  wire         sys_clk_pin,
     output wire [3 : 0] VGA_R,
     output wire [3 : 0] VGA_G,
@@ -48,14 +50,17 @@ module toplevel (
         .uio_oe(uio_oe)
     );
 
-    assign VGA_R[0] = uo_out[4]; 
-    assign VGA_R[1] = uo_out[1]; 
+    assign VGA_R[0]     = uo_out[4]; 
+    assign VGA_R[1]     = uo_out[0];
+    assign VGA_R[3 : 2] = 0;
 
-    assign VGA_G[0] = uo_out[5]; 
-    assign VGA_G[1] = uo_out[2]; 
+    assign VGA_G[0]     = uo_out[5]; 
+    assign VGA_G[1]     = uo_out[1]; 
+    assign VGA_G[3 : 2] = 0;
 
-    assign VGA_B[0] = uo_out[6]; 
-    assign VGA_B[1] = uo_out[3]; 
+    assign VGA_B[0]     = uo_out[6]; 
+    assign VGA_B[1]     = uo_out[2]; 
+    assign VGA_B[3 : 2] = 0;
 
     assign VGA_VS_O = uo_out[3]; 
     assign VGA_HS_O = uo_out[7];
@@ -77,19 +82,20 @@ module toplevel (
 
     wire reset;
     assign rst_n    = ~reset;
-    debounce deb_rst (
+    debounce #(.DELAY(DEBOUNCE)) deb_rst (
         .clk(clk),
         .in(btn[0]),
         .out(reset)
     );
 
     wire render;
-    debounce deb_render (
+    debounce #(.DELAY(DEBOUNCE)) deb_render (
         .clk(clk),
         .in(btn[1]),
         .out(render)
     );
     assign ui_in[0] = render;
+    assign ui_in[7] = 1'b0;
     
     reg [2 : 0]     state;
     reg [5 : 0]     shift_ctr;
