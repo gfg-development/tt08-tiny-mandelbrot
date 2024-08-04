@@ -23,7 +23,7 @@ module tt_um_gfg_development_tinymandelbrot (
 
     // output_select == 1 --> use binary interface, 0 --> VGA interface
     wire output_select;
-    assign output_select    = ui_in[7];
+    assign output_select    = ui_in[3];
 
     // Multiplexing IOs between the different modes
     assign uo_out[0]  = (output_select == 1'b1) ? ctr_out[0]  : R[1];
@@ -41,9 +41,9 @@ module tt_um_gfg_development_tinymandelbrot (
     reg [2 : 0]   l_sclk;
     reg [2 : 0]   l_sen;
     always @(posedge clk) begin
-        l_sdata <= {l_sdata[1 : 0], ui_in[5]};
-        l_sclk  <= {l_sclk[1 : 0], ui_in[6]};
-        l_sen   <= {l_sen[1 : 0], ui_in[4]};
+        l_sdata <= {l_sdata[1 : 0], ui_in[1]};
+        l_sclk  <= {l_sclk[1 : 0], ui_in[2]};
+        l_sen   <= {l_sen[1 : 0], ui_in[0]};
 
         if (l_sen[2] == 1'b1 && l_sclk[2] == 1'b0 && l_sclk[1] == 1'b1) begin
             configuration   <= {l_sdata[2], configuration[32 : 1]};
@@ -91,6 +91,8 @@ module tt_um_gfg_development_tinymandelbrot (
     assign G = gray[2 : 1];
     assign B = gray[1 : 0];
 
+    assign uio_oe = 8'hFF;
+
     vga_rp2040_framebuffer vga (
         .clk(clk),
         .rst_n(rst_n),
@@ -99,11 +101,9 @@ module tt_um_gfg_development_tinymandelbrot (
         .h_sync_out(hsync),
         .gray_out(gray),
 
-        .data_dir(uio_oe),
-        .data_out(uio_out),
-        .data_in(uio_in),
+        .ctrl_data_out(uio_out),
+        .data_in(ui_in[7 : 4]),
 
-        .write_mode(write_mode),
         .write_data_in(ctr_out),
         .reset_write_ptr(reset_write_ptr),
         .write_data(valid_data),
@@ -112,25 +112,20 @@ module tt_um_gfg_development_tinymandelbrot (
 
     // The statemachine
     reg  [1 : 0]    state;
-    reg             write_mode;
     reg             reset_write_ptr;
-    reg  [1 : 0]    l_start;
 
     always @(posedge clk) begin
-        reset_write_ptr                 <= 1'b0;
-        run_pixel                       <= 1'b0;
-        l_start                         <= {l_start[0], ui_in[0]};
+        reset_write_ptr                     <= 1'b0;
+        run_pixel                           <= 1'b0;
         if (reset == 1'b1) begin
-            state           <= 0;
-            write_mode      <= 1'b0;
+            state                           <= 0;
         end else begin
             case (state)
                 // Wait for start of rendering
                 0:
                     begin
-                        if (l_start[1] == 1'b1) begin
+                        if (l_sen[2] == 1'b1 && l_sen[1] == 1'b0) begin
                             state           <= 1;
-                            write_mode      <= 1'b1;
                         end
                     end
 
@@ -138,6 +133,7 @@ module tt_um_gfg_development_tinymandelbrot (
                 1: 
                     begin
                         reset_write_ptr     <= 1'b1;
+                        run_pixel           <= 1'b1;
                         state               <= 2;
                     end
 
@@ -155,7 +151,6 @@ module tt_um_gfg_development_tinymandelbrot (
                     begin
                         if (valid_data == 1'b1) begin
                             if (finished == 1'b1) begin
-                                write_mode  <= 1'b0;
                                 state       <= 0;
                             end else begin
                                 state       <= 2;

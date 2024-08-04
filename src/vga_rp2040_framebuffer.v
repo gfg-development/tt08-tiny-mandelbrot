@@ -40,12 +40,10 @@ module vga_rp2040_framebuffer #(
     output wire [3 : 0]                     gray_out,               // the gray scale pixel value
 
     /* QSPI signals */
-    output wire [7 : 0]                     data_dir,
-    input  wire [7 : 0]                     data_in,
-    output wire [7 : 0]                     data_out,
+    input  wire [3 : 0]                     data_in,
+    output wire [7 : 0]                     ctrl_data_out,
 
     /* Write signals */
-    input wire                              write_mode,
     input wire  [3 : 0]                     write_data_in,
     input wire                              reset_write_ptr,
     input wire                              write_data,
@@ -108,115 +106,49 @@ module vga_rp2040_framebuffer #(
             v_sync                          <= 0;
         end else begin
             if (new_line == 1) begin
-                line_ctr                        <= line_ctr + 1;
+                line_ctr                    <= line_ctr + 1;
 
                 if (line_ctr == ROW_VISIBLE - 1) begin
-                    line_reset                  <= 1;
+                    line_reset              <= 1;
                 end
 
                 if (line_ctr == ROW_VISIBLE + ROW_FRONT_PORCH - 1) begin
-                    v_sync                      <= 1;
+                    v_sync                  <= 1;
                 end
 
                 if (line_ctr == ROW_VISIBLE + ROW_FRONT_PORCH + ROW_SYNC_PULSE - 1) begin
-                    v_sync                      <= 0;
+                    v_sync                  <= 0;
                 end
 
                 if (line_ctr == ROW_VISIBLE + ROW_FRONT_PORCH + ROW_SYNC_PULSE + ROW_BACK_PORCH - 1) begin
-                    line_reset                  <= 0;
-                    line_ctr                    <= 0;
+                    line_reset              <= 0;
+                    line_ctr                <= 0;
                 end
             end
         end
     end
 
     /* Black out the pixels while not in the visible area */
-    assign  gray_out = (row_reset == 1 || line_reset == 1 || state != 0) ? 0 : pixel_buffer;
+    assign  gray_out = (row_reset == 1 || line_reset == 1) ? 0 : pixel_buffer;
 
-    /* Statemachine for handling the frame buffer */
-    reg [1 : 0] state;
-    reg [3 : 0] counter;
-    reg         write_bit;
-    reg         write_direction;
-
-    wire        reset_ptr;
-    reg         doit;
-    reg [1 : 0] l_doit;
+    /* Handling the frame buffer */
+    reg [1 : 0] l_read;
     reg [3 : 0] pixel_buffer;
 
+    wire        read;
+    wire        reset_read_ptr;
+
+    assign read = !row_reset && pixel_ctr == LINE_VISIBLE + LINE_FRONT_PORCH + LINE_SYNC_PULSE + LINE_BACK_PORCH - 1;
+
     always @(posedge clk) begin
-        wrote_data                      <= 1'b0;
-        doit                            <= 1'b0;
-        l_doit                          <= {l_doit[1 : 0], doit};
+        wrote_data                      <= write_data;
 
-        if (l_doit[0] ==  1'b1) begin
+        l_read                          <= {l_read[0 : 0], read};
+        if (l_read[1] ==  1'b1) begin
            pixel_buffer                 <= data_in[3 : 0]; 
-        end
-
-        if (rst_n == 1'b0) begin
-            state                       <= 0;
-            write_bit                   <= 1'b0;
-            write_direction             <= 1'b0;
-        end else begin
-           case (state)
-                // Idle in read mode
-                0: 
-                    begin
-                        if (write_mode == 1'b1) begin
-                            state           <= 1;
-                            counter         <= 0;
-                            write_bit       <= 1'b1;
-                        end else begin
-                            if (line_reset == 1'b0) begin
-                                if (pixel_ctr == LINE_VISIBLE + LINE_FRONT_PORCH + LINE_SYNC_PULSE + LINE_BACK_PORCH - 2) begin
-                                    doit    <= 1'b1;
-                                end
-
-                                if (row_reset == 1'b0) begin
-                                    doit    <= !pixel_ctr[0];
-                                end
-                            end
-                        end
-                    end
-
-                // Wait-stage to get into write mode
-                1:
-                    begin
-                        counter             <= counter + 1;
-                        if (counter == 15) begin
-                            write_direction <= 1'b0;
-                            wrote_data      <= 1'b1;
-                            state           <= 2;
-                        end
-                    end
-
-                // Write mode idle
-                2:
-                    begin
-                        if (write_mode == 1'b0) begin
-                            write_bit       <= 1'b0;
-                            state           <= 0;
-                        end else if (write_data == 1'b1) begin
-                            doit            <= 1'b1;
-                            state           <= 3;
-                        end
-                    end
-                
-                // Wait state for writing
-                3:
-                    begin
-                        wrote_data      <= 1'b1;
-                        state           <= 2;
-                    end
-
-                default:
-                    state   <= 0;
-            endcase 
-        end
+        end       
     end
 
-    assign reset_ptr    = (write_mode == 1'b1) ? reset_write_ptr : v_sync;
-
-    assign data_dir = {4'b1110, {4{write_direction}}};
-    assign data_out = {write_bit, reset_ptr, doit, 1'b0 , write_data_in};
+    assign reset_read_ptr   = v_sync;
+    assign ctrl_data_out    = {read, reset_read_ptr, reset_write_ptr, write_data, write_data_in};
 endmodule
