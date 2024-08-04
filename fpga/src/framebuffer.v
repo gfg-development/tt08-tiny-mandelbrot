@@ -24,9 +24,10 @@
     input  wire         clk,
     input  wire [3 : 0] in,
     output wire [3 : 0] out,
-    input  wire         write_mode,
-    input  wire         ptr_reset,
-    input  wire         doit
+    input  wire         read,
+    input  wire         reset_read_ptr,
+    input  wire         write,
+    input  wire         reset_write_ptr
  );
     reg [3 : 0]         ram [76799 : 0];
     reg [16 : 0]        read_ptr;
@@ -37,22 +38,22 @@
     always @(posedge clk) begin
         output_buffer               <= ram[read_ptr];
 
-        if (ptr_reset == 1'b1) begin
-            if (write_mode == 1'b1) begin
-                write_ptr           <= 0;
-            end else begin
-                read_ptr            <= 0;
-            end
-        end else begin
-            if (doit == 1'b1) begin
-                if (write_mode == 1'b1) begin
-                    write_ptr       <= write_ptr + 1;
-                    ram[write_ptr]  <= in;
-                end else begin
-                    read_ptr        <= read_ptr + 1;
-                end 
-            end
+        if (write == 1'b1) begin
+            write_ptr       <= write_ptr + 1;
+            ram[write_ptr]  <= in;
         end
+
+        if (read == 1'b1) begin
+            read_ptr        <= read_ptr + 1;
+        end;
+
+        if (reset_read_ptr == 1'b1) begin
+            read_ptr            <= 0;
+        end;
+
+        if (reset_write_ptr == 1'b1) begin
+            write_ptr           <= 0;
+        end;
     end
 
     assign out = output_buffer;    

@@ -28,7 +28,7 @@ module toplevel #(
     output wire         VGA_HS_O,
     output wire         VGA_VS_O,
     input  wire [1 : 0] btn,
-    output wire [0 : 0] led
+    output wire [1 : 0] led
 );
     wire [7 : 0]  ui_in;
     wire [7 : 0]  uo_out;
@@ -50,17 +50,17 @@ module toplevel #(
         .uio_oe(uio_oe)
     );
 
-    assign VGA_R[0]     = uo_out[4]; 
-    assign VGA_R[1]     = uo_out[0];
-    assign VGA_R[3 : 2] = 0;
+    assign VGA_R[2]     = uo_out[4]; 
+    assign VGA_R[3]     = uo_out[0];
+    assign VGA_R[1 : 0] = 0;
 
-    assign VGA_G[0]     = uo_out[5]; 
-    assign VGA_G[1]     = uo_out[1]; 
-    assign VGA_G[3 : 2] = 0;
+    assign VGA_G[2]     = uo_out[5]; 
+    assign VGA_G[3]     = uo_out[1]; 
+    assign VGA_G[1 : 0] = 0;
 
-    assign VGA_B[0]     = uo_out[6]; 
-    assign VGA_B[1]     = uo_out[2]; 
-    assign VGA_B[3 : 2] = 0;
+    assign VGA_B[2]     = uo_out[6]; 
+    assign VGA_B[3]     = uo_out[2]; 
+    assign VGA_B[1 : 0] = 0;
 
     assign VGA_VS_O = uo_out[3]; 
     assign VGA_HS_O = uo_out[7];
@@ -68,10 +68,11 @@ module toplevel #(
     framebuffer framebuffer (
         .clk(clk),
         .in(uio_out[3 : 0]),
-        .out(uio_in[3 : 0]),
-        .write_mode(uio_out[7]),
-        .ptr_reset(uio_out[6]),
-        .doit(uio_out[5])
+        .out(ui_in[7 : 4]),
+        .write(uio_out[4]),
+        .read(uio_out[7]),
+        .reset_read_ptr(uio_out[6]),
+        .reset_write_ptr(uio_out[5])
     );
 
     clk_wiz_0 vga_clk (
@@ -88,14 +89,7 @@ module toplevel #(
         .out(reset)
     );
 
-    wire render;
-    debounce #(.DELAY(DEBOUNCE)) deb_render (
-        .clk(clk),
-        .in(btn[1]),
-        .out(render)
-    );
-    assign ui_in[0] = render;
-    assign ui_in[7] = 1'b0;
+    assign ui_in[3] = 1'b0;
     
     reg [2 : 0]     state;
     reg [5 : 0]     shift_ctr;
@@ -145,6 +139,7 @@ module toplevel #(
 
                 4:
                     begin
+                        enable          <= 1'b0;
                         state           <= 4;
                     end 
                 
@@ -157,7 +152,9 @@ module toplevel #(
         end
     end
 
-    assign ui_in[5] = configuration[0];
-    assign ui_in[6] = sclk;
-    assign ui_in[4] = enable;
+    assign led[1] = (state == 4) ? 1'b1 : 1'b0;
+
+    assign ui_in[1] = configuration[0];
+    assign ui_in[2] = sclk;
+    assign ui_in[0] = enable;
 endmodule

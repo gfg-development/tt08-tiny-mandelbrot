@@ -138,7 +138,7 @@ module vga_rp2040_framebuffer #(
     wire        read;
     wire        reset_read_ptr;
 
-    assign read = !row_reset && pixel_ctr == LINE_VISIBLE + LINE_FRONT_PORCH + LINE_SYNC_PULSE + LINE_BACK_PORCH - 1;
+    assign read = (!row_reset && pixel_ctr[0]) || pixel_ctr == LINE_VISIBLE + LINE_FRONT_PORCH + LINE_SYNC_PULSE + LINE_BACK_PORCH - 1;
 
     always @(posedge clk) begin
         wrote_data                      <= write_data;
