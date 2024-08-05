@@ -142,7 +142,7 @@ module mandelbrot #(
 
     assign t_ci_1   = ci_offset + {{(BITWIDTH - BITWIDTH_HEIGHT){1'b0}}, y};
     assign m_ci_1   = (scaling[0] == 1'b1) ? y : {(BITWIDTH_HEIGHT){1'b0}};
-    assign m_ci_2   = (scaling[1] == 1'b1) ? {y, 1'b0} : {(BITWIDTH_HEIGHT + 1){1'b0}};;
+    assign m_ci_2   = (scaling[1] == 1'b1) ? {y, 1'b0} : {(BITWIDTH_HEIGHT + 1){1'b0}};
     assign t_ci_2   = {2'b00, m_ci_1} + m_ci_2;
 
     assign ci    = t_ci_1 + t_ci_2;
