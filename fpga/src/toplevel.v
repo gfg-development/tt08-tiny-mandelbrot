@@ -91,7 +91,7 @@ module toplevel #(
 
     assign ui_in[3] = 1'b0;
     
-    reg [2 : 0]     state;
+    reg [2 : 0]     state               = 7;
     reg [5 : 0]     shift_ctr;
     reg [32 : 0]    configuration;
     reg             enable;
@@ -146,7 +146,7 @@ module toplevel #(
 
                 default:
                     begin
-                        state           <= 0;
+                        state           <= state;
                     end 
             endcase
         end

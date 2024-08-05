@@ -28,7 +28,9 @@ module vga_rp2040_framebuffer #(
     parameter ROW_VISIBLE       = 480,
     parameter ROW_FRONT_PORCH   = 10,
     parameter ROW_SYNC_PULSE    = 2,
-    parameter ROW_BACK_PORCH    = 33
+    parameter ROW_BACK_PORCH    = 33,
+
+    parameter SYNC_POLARITY     = 0
 ) (
     /* General signals */
     input  wire                             clk,                    // clock
@@ -55,8 +57,8 @@ module vga_rp2040_framebuffer #(
     parameter WIDTH_PIXEL_CTR   = $clog2(LINE_VISIBLE + LINE_FRONT_PORCH + LINE_SYNC_PULSE + LINE_BACK_PORCH);
     parameter WIDTH_LINE_CTR    = $clog2(ROW_VISIBLE + ROW_FRONT_PORCH + ROW_SYNC_PULSE + ROW_BACK_PORCH);
 
-    assign v_sync_out           = v_sync;
-    assign h_sync_out           = h_sync;
+    assign v_sync_out           = (SYNC_POLARITY == 0) ? !v_sync : v_sync;
+    assign h_sync_out           = (SYNC_POLARITY == 0) ? !h_sync : h_sync;
 
     /* Counter and state machine for pixels in a line */
     reg  [WIDTH_PIXEL_CTR - 1 : 0]  pixel_ctr       = 0; // init value only for simulation, for implementation a random value is enough

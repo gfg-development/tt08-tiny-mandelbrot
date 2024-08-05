@@ -42,7 +42,7 @@
     always @(posedge clk) begin
         /*if (read_ptr_col == 0) begin
             output_buffer           <= 15;
-        end else if (read_ptr_row == 0) begin
+        end else if (read_ptr_row[8 : 1] == 0) begin
             output_buffer           <= 8;
         end else begin
             output_buffer           <= 0;
