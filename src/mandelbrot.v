@@ -123,8 +123,29 @@ module mandelbrot #(
         end
     end
 
-    assign cr    = cr_offset + (scaling + 1) * x;
-    assign ci    = ci_offset + (scaling + 1) * y;
+    wire signed [BITWIDTH - 1 : 0]          t_cr_1;
+    wire signed [BITWIDTH_WIDTH + 1 : 0]    t_cr_2;
+    wire signed [BITWIDTH_WIDTH - 1 : 0]    m_cr_1;
+    wire signed [BITWIDTH_WIDTH : 0]        m_cr_2;
+
+    assign t_cr_1   = cr_offset + {{(BITWIDTH - BITWIDTH_WIDTH){1'b0}}, x};
+    assign m_cr_1   = (scaling[0] == 1'b1) ? x : {BITWIDTH_WIDTH{1'b0}};
+    assign m_cr_2   = (scaling[1] == 1'b1) ? {x, 1'b0} : {(BITWIDTH_WIDTH + 1){1'b0}};
+    assign t_cr_2   = {2'b00, m_cr_1} + m_cr_2;
+
+    assign cr    = t_cr_1 + t_cr_2;
+
+    wire signed [BITWIDTH - 1 : 0]          t_ci_1;
+    wire signed [BITWIDTH_HEIGHT + 1 : 0]   t_ci_2;
+    wire signed [BITWIDTH_HEIGHT - 1 : 0]   m_ci_1;
+    wire signed [BITWIDTH_HEIGHT : 0]       m_ci_2;
+
+    assign t_ci_1   = ci_offset + {{(BITWIDTH - BITWIDTH_HEIGHT){1'b0}}, y};
+    assign m_ci_1   = (scaling[0] == 1'b1) ? y : {(BITWIDTH_HEIGHT){1'b0}};
+    assign m_ci_2   = (scaling[1] == 1'b1) ? {y, 1'b0} : {(BITWIDTH_HEIGHT + 1){1'b0}};;
+    assign t_ci_2   = {2'b00, m_ci_1} + m_ci_2;
+
+    assign ci    = t_ci_1 + t_ci_2;
 
     assign in_cr = cr;
     assign in_ci = ci;
