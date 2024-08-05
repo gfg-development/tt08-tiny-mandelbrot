@@ -89,64 +89,107 @@ module toplevel #(
         .out(reset)
     );
 
+    wire next;
+    debounce #(.DELAY(DEBOUNCE)) deb_next (
+        .clk(clk),
+        .in(btn[1]),
+        .out(next)
+    );
+
     assign ui_in[3] = 1'b0;
     
-    reg [2 : 0]     state               = 7;
+    reg [2 : 0]     state               = 0;
     reg [5 : 0]     shift_ctr;
     reg [32 : 0]    configuration;
+    reg [2  : 0]    configuration_ptr   = 0;
     reg             enable;
     reg             sclk;
+    reg             l_next;
     always @(posedge clk) begin
+        l_next                                      <= next;
         if (reset == 1'b1) begin
-            state                       <= 0;
-            enable                      <= 1'b0;
-            sclk                        <= 1'b0;
+            state                                   <= 0;
+            enable                                  <= 1'b0;
+            sclk                                    <= 1'b0;
+            configuration_ptr                       <= 0;
         end else begin
             case (state)
                 0:
                     begin
-                        configuration   <= 33'h03CF10404; // b0_0011_1100_0000_0000_0000_0000_0000_0000;
-                        state           <= 1;
-                        enable          <= 1'b0;
-                        sclk            <= 1'b0;
-                        shift_ctr       <= 0;
-                    end 
-                
+                        if (next == 1'b1 && l_next == 1'b0) begin
+                            case (configuration_ptr)
+                                0:
+                                    configuration   <= 33'h03CF10404;
+
+                                1:
+                                    configuration   <= 33'h07DF10404;
+
+                                2:
+                                    configuration   <= 33'h0FEF10404;
+
+                                3:
+                                    configuration   <= 33'h1FFF10404;
+
+                                4:
+                                    configuration   <= 33'h03CF10404;
+
+                                5:
+                                    configuration   <= 33'h07CF10404;
+
+                                6:
+                                    configuration   <= 33'h0FCF10404;
+
+                                7:
+                                    configuration   <= 33'h1FCF10404;
+                            endcase
+
+                            state                   <= 1;
+                        end
+                    end
                 1:
                     begin
-                        enable          <= 1'b1;
-                        state           <= 2;
-                    end
-
+                        state                       <= 2;
+                        enable                      <= 1'b0;
+                        sclk                        <= 1'b0;
+                        shift_ctr                   <= 0;
+                    end 
+                
                 2:
                     begin
-                        sclk            <= 1'b1;
-                        state           <= 3;
-                    end 
+                        enable                      <= 1'b1;
+                        state                       <= 3;
+                    end
 
                 3:
                     begin
-                        sclk            <= 1'b0;
-                        configuration   <= configuration >> 1;
-                        
-                        if (shift_ctr == 32) begin
-                            state       <= 4;
-                        end else begin
-                            shift_ctr   <= shift_ctr + 1;
-                            state       <= 2;
-                        end 
-                    end
+                        sclk                        <= 1'b1;
+                        state                       <= 4;
+                    end 
 
                 4:
                     begin
-                        enable          <= 1'b0;
-                        state           <= 4;
+                        sclk                        <= 1'b0;
+                        configuration               <= configuration >> 1;
+                        
+                        if (shift_ctr == 32) begin
+                            state                   <= 5;
+                            configuration_ptr       <= configuration_ptr + 1;
+                        end else begin
+                            shift_ctr               <= shift_ctr + 1;
+                            state                   <= 3;
+                        end 
+                    end
+
+                5:
+                    begin
+                        enable                      <= 1'b0;
+                        state                       <= 0;
                     end 
                 
 
                 default:
                     begin
-                        state           <= state;
+                        state                       <= state;
                     end 
             endcase
         end
