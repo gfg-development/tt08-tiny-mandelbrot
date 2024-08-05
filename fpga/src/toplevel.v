@@ -105,7 +105,7 @@ module toplevel #(
             case (state)
                 0:
                     begin
-                        configuration   <= 33'b0_0011_1100_0000_0000_0000_0000_0000_0000;
+                        configuration   <= 33'h03CF10404; // b0_0011_1100_0000_0000_0000_0000_0000_0000;
                         state           <= 1;
                         enable          <= 1'b0;
                         sclk            <= 1'b0;

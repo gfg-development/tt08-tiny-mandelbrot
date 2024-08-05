@@ -132,19 +132,19 @@ module vga_rp2040_framebuffer #(
     assign  gray_out = (row_reset == 1 || line_reset == 1) ? 0 : pixel_buffer;
 
     /* Handling the frame buffer */
-    reg [1 : 0] l_read;
+    reg         l_read;
     reg [3 : 0] pixel_buffer;
 
     wire        read;
     wire        reset_read_ptr;
 
-    assign read = (!row_reset && pixel_ctr[0]) || pixel_ctr == LINE_VISIBLE + LINE_FRONT_PORCH + LINE_SYNC_PULSE + LINE_BACK_PORCH - 1;
+    assign read = (!pixel_ctr[0] && ((pixel_ctr[WIDTH_PIXEL_CTR - 1 : 1] < LINE_VISIBLE / 2 - 1) || (pixel_ctr[WIDTH_PIXEL_CTR - 1 : 1] == (LINE_VISIBLE + LINE_FRONT_PORCH + LINE_SYNC_PULSE + LINE_BACK_PORCH) / 2 - 1))) && !line_reset;
 
     always @(posedge clk) begin
         wrote_data                      <= write_data;
 
-        l_read                          <= {l_read[0 : 0], read};
-        if (l_read[1] ==  1'b1) begin
+        l_read                          <= read;
+        if (l_read ==  1'b1) begin
            pixel_buffer                 <= data_in[3 : 0]; 
         end       
     end
