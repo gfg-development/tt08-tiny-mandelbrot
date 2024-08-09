@@ -65,8 +65,8 @@ module vga_rp2040_framebuffer #(
     reg                             h_sync;
     reg                             new_line;
     reg                             row_reset;
-    always @(posedge clk) begin
-        if (rst_n == 0) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
             pixel_ctr                       <= 0;
             row_reset                       <= 1;
             h_sync                          <= 0;
@@ -101,8 +101,8 @@ module vga_rp2040_framebuffer #(
     reg  [WIDTH_LINE_CTR - 1 : 0]   line_ctr    = 0; // init value only for simulation, for implementation a random value is enough;
     reg                             v_sync;
     reg                             line_reset;
-    always @(posedge clk) begin
-        if (rst_n == 0) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
             line_ctr                        <= 0;
             line_reset                      <= 1;
             v_sync                          <= 0;
