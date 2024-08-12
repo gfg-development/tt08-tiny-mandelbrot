@@ -46,7 +46,7 @@ module upper_adder #(
     genvar j;
     generate
         for (j = 1; j < RESULT_WIDTH; j = j + 1) begin
-            assign carries[i] = (carries[i - 1] & inb[i]) | ((carries[i - 1] | inb[i]) & (ina[i]));
+            assign carries[j] = (carries[j - 1] & inb[j]) | ((carries[j - 1] | inb[j]) & (ina[j]));
         end
     endgenerate
 
