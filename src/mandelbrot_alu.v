@@ -88,7 +88,7 @@ module mandelbrot_alu #( parameter WIDTH = 8) (
 
     assign size         = (t_sum[2 * WIDTH : WIDTH - 2] > (4 << (WIDTH - 2))) ? 1'b1 : 1'b0;
 
-    assign overflow_r   = (t_zr[2 * WIDTH] == 1'b1) ? !(&t_zr[2 * WIDTH : 2 * WIDTH - 3]) : |t_zr[2 * WIDTH : 2 * WIDTH - 3];
+    assign overflow_r   = (t_zr[2 * WIDTH - WIDTH + 2] == 1'b1) ? !(&t_zr[2 * WIDTH - WIDTH + 2 : 2 * WIDTH - 3 - WIDTH + 2]) : |t_zr[2 * WIDTH - WIDTH + 2 : 2 * WIDTH - 3 - WIDTH + 2];
     assign overflow_i   = (t_zi[2 * WIDTH + 1] == 1'b1) ? !(&t_zi[2 * WIDTH + 1 : 2 * WIDTH - 3]) : |t_zi[2 * WIDTH + 1 : 2 * WIDTH - 3]; 
     assign overflow     = overflow_r | overflow_i;
 endmodule
