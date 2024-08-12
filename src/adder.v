@@ -31,7 +31,7 @@
 module adder #( parameter WIDTH = 8 ) (
     input  wire [WIDTH - 1 : 0] ina,
     input  wire [WIDTH - 1 : 0] inb,
-    output wire [WIDTH : 0]     out
+    output wire [WIDTH - 1 : 0] out
 );
 
     wire [WIDTH - 1 : 0]    carries;
@@ -47,7 +47,7 @@ module adder #( parameter WIDTH = 8 ) (
     genvar i;
     generate
         for (i = 1; i < WIDTH; i = i + 1) begin
-            sky130_fd_sc_hd__fa_1 fa (
+            sky130_fd_sc_hd__fa fa (
                 .A(ina[i]), 
                 .B(inb[i]), 
                 .CIN(carries[i - 1]), 
@@ -57,6 +57,6 @@ module adder #( parameter WIDTH = 8 ) (
         end
     endgenerate
 
-    assign out      = {carries[WIDTH - 1], sum};
+    assign out      = sum;
 
 endmodule
