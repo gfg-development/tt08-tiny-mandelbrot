@@ -77,7 +77,7 @@ module mandelbrot_alu #( parameter WIDTH = 8) (
 
     upper_adder #(
         .WIDTH(2 * WIDTH + 1),
-        .RESULT_WIDTH(WIDHT + 3)
+        .RESULT_WIDTH(WIDTH + 3)
     ) adder_sum (
         .ina({1'b0, m1[2 * WIDTH - 1 : 0]}),
         .inb({1'b0, m2[2 * WIDTH - 1 : 0]}),
