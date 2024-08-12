@@ -5,7 +5,7 @@
 SIM ?= icarus
 TOPLEVEL_LANG ?= verilog
 SRC_DIR = $(PWD)/../src
-PROJECT_SOURCES = project.v mandelbrot.v mandelbrot_alu.v vga_rp2040_framebuffer.v adder.v
+PROJECT_SOURCES = project.v mandelbrot.v mandelbrot_alu.v vga_rp2040_framebuffer.v adder.v upper_adder.v
 
 VERILOG_SOURCES += $(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitives.v
 VERILOG_SOURCES += $(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v
