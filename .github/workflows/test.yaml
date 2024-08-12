@@ -9,6 +9,21 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Set up environment variables
+        shell: bash
+        run: |
+          cat << EOF >> $GITHUB_ENV
+          PDK_ROOT=/home/runner/pdk
+          PDK=sky130A
+          EOF
+
+      - name: Install Sky130 PDK
+        uses: TinyTapeout/volare-action@v2
+        with:
+          pdk_name: sky130
+          pdk_version: cd1748bb197f9b7af62a54507de6624e30363943
+          pdk_root: /home/runner/pdk
+
       - name: Install iverilog
         shell: bash
         run: sudo apt-get update && sudo apt-get install -y iverilog
