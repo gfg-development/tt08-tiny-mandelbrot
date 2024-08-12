@@ -51,7 +51,7 @@ module mandelbrot_alu #( parameter WIDTH = 8) (
     wire signed [WIDTH + 2     : 0] t_zr;
     wire signed [WIDTH + 3     : 0] t_zi;
 
-    wire        [WIDTH + 2     : 0] t_sum;
+    wire        [2 * WIDTH     : 0] t_sum;
     wire                            overflow_r;
     wire                            overflow_i;
 
@@ -90,7 +90,7 @@ module mandelbrot_alu #( parameter WIDTH = 8) (
     assign t_sum = {1'b0, m1[2 * WIDTH - 1 : 0]} + {1'b0, m2[2 * WIDTH - 1 : 0]};
 
     assign size         = (t_sum[2 * WIDTH : WIDTH - 2] > (4 << (WIDTH - 2))) ? 1'b1 : 1'b0;
-    
+
     assign overflow_r   = (t_zr[WIDTH + 2] == 1'b1) ? !(&t_zr[WIDTH + 2 : WIDTH - 1]) : |t_zr[WIDTH + 2 : WIDTH - 1];
     assign overflow_i   = (t_zi[WIDTH + 3] == 1'b1) ? !(&t_zi[WIDTH + 3 : WIDTH - 1]) : |t_zi[WIDTH + 3 : WIDTH - 1]; 
     assign overflow     = overflow_r | overflow_i;
