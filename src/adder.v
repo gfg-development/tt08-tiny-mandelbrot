@@ -47,7 +47,7 @@ module adder #( parameter WIDTH = 8 ) (
     genvar i;
     generate
         for (i = 1; i < WIDTH; i = i + 1) begin
-            sky130_fd_sc_hd__fa fa (
+            sky130_fd_sc_hd__fa_1 fa (
                 .A(ina[i]), 
                 .B(inb[i]), 
                 .CIN(carries[i - 1]), 
