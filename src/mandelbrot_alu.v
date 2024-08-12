@@ -49,7 +49,7 @@ module mandelbrot_alu #( parameter WIDTH = 8) (
     wire signed [2 * WIDTH     : 0] diff_m1_m2;
 
     wire signed [WIDTH + 2     : 0] t_zr;
-    wire signed [2 * WIDTH + 1 : 0] t_zi;
+    wire signed [WIDTH + 3     : 0] t_zi;
 
     wire        [2 * WIDTH     : 0] t_sum;
     wire                            overflow_r;
@@ -66,14 +66,14 @@ module mandelbrot_alu #( parameter WIDTH = 8) (
         .out(t_zr)
     );
 
-    adder #(.WIDTH(2 * WIDTH + 2)) adder_zi (
-        .ina({m3[2 * WIDTH - 1], m3, 1'b0}),
-        .inb({{4{in_ci[WIDTH - 1]}}, in_ci, {WIDTH-2{1'b0}}}),
+    adder #(.WIDTH(WIDTH + 4)) adder_zi (
+        .ina({m3[2 * WIDTH - 1], m3[2 * WIDHT - 1 : WIDHT - 4]}),
+        .inb({{4{in_ci[WIDTH - 1]}}, in_ci}),
         .out(t_zi)
     );
 
     assign out_zr       = t_zr[WIDTH - 1 : 0];
-    assign out_zi       = t_zi[2 * WIDTH - 3 : WIDTH - 2];
+    assign out_zi       = t_zi[WIDTH - 1 : 0];
 
     adder #(.WIDTH(2 * WIDTH + 1)) adder_sum (
         .ina({1'b0, m1[2 * WIDTH - 1 : 0]}),
@@ -84,6 +84,6 @@ module mandelbrot_alu #( parameter WIDTH = 8) (
     assign size         = (t_sum[2 * WIDTH : WIDTH - 2] > (4 << (WIDTH - 2))) ? 1'b1 : 1'b0;
 
     assign overflow_r   = (t_zr[WIDTH + 2] == 1'b1) ? !(&t_zr[WIDTH + 2 : WIDTH - 1]) : |t_zr[WIDTH + 2 : WIDTH - 1];
-    assign overflow_i   = (t_zi[2 * WIDTH + 1] == 1'b1) ? !(&t_zi[2 * WIDTH + 1 : 2 * WIDTH - 3]) : |t_zi[2 * WIDTH + 1 : 2 * WIDTH - 3]; 
+    assign overflow_i   = (t_zi[WIDTH + 3] == 1'b1) ? !(&t_zi[WIDTH + 3 : WIDTH - 1]) : |t_zi[WIDTH + 3 : WIDTH - 1]; 
     assign overflow     = overflow_r | overflow_i;
 endmodule
