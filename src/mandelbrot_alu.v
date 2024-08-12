@@ -46,7 +46,9 @@ module mandelbrot_alu #( parameter WIDTH = 8) (
     wire signed [2 * WIDTH - 1 : 0] m2;
     wire signed [2 * WIDTH - 1 : 0] m3;
 
-    wire signed [2 * WIDTH     : 0] t_zr;
+    wire signed [2 * WIDHT     : 0] diff_m1_m2;
+
+    wire signed [2 * WIDTH - WIDTH + 2    : 0] t_zr;
     wire signed [2 * WIDTH + 1 : 0] t_zi;
 
     wire        [2 * WIDTH     : 0] t_sum;
@@ -57,9 +59,10 @@ module mandelbrot_alu #( parameter WIDTH = 8) (
     assign m2           = in_zi * in_zi;
     assign m3           = in_zr * in_zi;
 
-    adder #(.WIDTH(2 * WIDTH + 1)) adder_zr (
-        .ina({m1[2 * WIDTH - 1], m1} - {m2[2 * WIDTH - 1], m2}),
-        .inb({{3{in_cr[WIDTH - 1]}}, in_cr, {WIDTH-2{1'b0}}}),
+    assign diff_m1_m2 = {m1[2 * WIDTH - 1], m1} - {m2[2 * WIDTH - 1], m2};
+    adder #(.WIDTH(2 * WIDTH + 1 - WIDHT + 2)) adder_zr (
+        .ina(diff_m1_m2[2 * WIDHT : WIDHT - 2]),
+        .inb({{3{in_cr[WIDTH - 1]}}, in_cr}),
         .out(t_zr)
     );
 
@@ -72,8 +75,8 @@ module mandelbrot_alu #( parameter WIDTH = 8) (
     // assign t_zr         = {m1[2 * WIDTH - 1], m1} - {m2[2 * WIDTH - 1], m2} + {{3{in_cr[WIDTH - 1]}}, in_cr, {WIDTH-2{1'b0}}};
     // assign t_zi         = {m3[2 * WIDTH - 1], m3, 1'b0} + {{4{in_ci[WIDTH - 1]}}, in_ci, {WIDTH-2{1'b0}}};
 
-    assign out_zr       = t_zr[2 * WIDTH - 3 : WIDTH - 2];
-    assign out_zi       = t_zi[2 * WIDTH - 3 : WIDTH - 2];
+    assign out_zr       = t_zr[2 * WIDTH - 3 : 0];
+    assign out_zi       = t_zi[2 * WIDTH - 3 : 0];
 
     // assign t_sum        = {1'b0, m1[2 * WIDTH - 1 : 0]} + {1'b0, m2[2 * WIDTH - 1 : 0]};
 
