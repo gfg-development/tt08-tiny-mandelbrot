@@ -57,7 +57,7 @@ module mandelbrot_alu #( parameter WIDTH = 8) (
     assign m2           = in_zi * in_zi;
     assign m3           = in_zr * in_zi;
 
-    adder #(.WIDTH(2 * WIDTH + 1)) add_zr (
+    adder #(.WIDTH(2 * WIDTH + 1)) adder_zr (
         .ina({m1[2 * WIDTH - 1], m1} - {m2[2 * WIDTH - 1], m2}),
         .inb({{3{in_cr[WIDTH - 1]}}, in_cr, {WIDTH-2{1'b0}}}),
         .out(t_zr)
@@ -71,7 +71,7 @@ module mandelbrot_alu #( parameter WIDTH = 8) (
 
     // assign t_sum        = {1'b0, m1[2 * WIDTH - 1 : 0]} + {1'b0, m2[2 * WIDTH - 1 : 0]};
 
-    adder #(.WIDTH(2 * WIDTH + 1)) add_zr (
+    adder #(.WIDTH(2 * WIDTH + 1)) adder_sum (
         .ina({1'b0, m1[2 * WIDTH - 1 : 0]}),
         .inb({1'b0, m2[2 * WIDTH - 1 : 0]}),
         .out(t_sum)
