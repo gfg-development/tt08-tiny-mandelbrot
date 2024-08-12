@@ -67,7 +67,7 @@ module mandelbrot_alu #( parameter WIDTH = 8) (
     );
 
     adder #(.WIDTH(WIDTH + 4)) adder_zi (
-        .ina({m3[2 * WIDTH - 1], m3[2 * WIDHT - 1 : WIDHT - 4]}),
+        .ina({m3[2 * WIDTH - 1], m3[2 * WIDTH - 1 : WIDTH - 4]}),
         .inb({{4{in_ci[WIDTH - 1]}}, in_ci}),
         .out(t_zi)
     );
