@@ -58,7 +58,7 @@ module upper_adder #(
                 .B(inb[i]), 
                 .CIN(carries[i - 1]), 
                 .COUT(carries[i]), 
-                .SUM(sum[RESULT_WIDTH - i])
+                .SUM(sum[i - RESULT_WIDTH])
             );
         end
     endgenerate
