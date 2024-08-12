@@ -46,7 +46,7 @@ module mandelbrot_alu #( parameter WIDTH = 8) (
     wire signed [2 * WIDTH - 1 : 0] m2;
     wire signed [2 * WIDTH - 1 : 0] m3;
 
-    wire signed [2 * WIDHT     : 0] diff_m1_m2;
+    wire signed [2 * WIDTH     : 0] diff_m1_m2;
 
     wire signed [2 * WIDTH - WIDTH + 2    : 0] t_zr;
     wire signed [2 * WIDTH + 1 : 0] t_zi;
@@ -60,8 +60,8 @@ module mandelbrot_alu #( parameter WIDTH = 8) (
     assign m3           = in_zr * in_zi;
 
     assign diff_m1_m2 = {m1[2 * WIDTH - 1], m1} - {m2[2 * WIDTH - 1], m2};
-    adder #(.WIDTH(2 * WIDTH + 1 - WIDHT + 2)) adder_zr (
-        .ina(diff_m1_m2[2 * WIDHT : WIDHT - 2]),
+    adder #(.WIDTH(2 * WIDTH + 1 - WIDTH + 2)) adder_zr (
+        .ina(diff_m1_m2[2 * WIDTH : WIDTH - 2]),
         .inb({{3{in_cr[WIDTH - 1]}}, in_cr}),
         .out(t_zr)
     );
