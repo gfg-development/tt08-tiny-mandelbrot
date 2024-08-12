@@ -69,7 +69,14 @@ module mandelbrot_alu #( parameter WIDTH = 8) (
     assign out_zr       = t_zr[2 * WIDTH - 3 : WIDTH - 2];
     assign out_zi       = t_zi[2 * WIDTH - 3 : WIDTH - 2];
 
-    assign t_sum        = {1'b0, m1[2 * WIDTH - 1 : 0]} + {1'b0, m2[2 * WIDTH - 1 : 0]};
+    // assign t_sum        = {1'b0, m1[2 * WIDTH - 1 : 0]} + {1'b0, m2[2 * WIDTH - 1 : 0]};
+
+    adder #(.WIDTH(2 * WIDTH + 1)) add_zr (
+        .ina({1'b0, m1[2 * WIDTH - 1 : 0]}),
+        .inb({1'b0, m2[2 * WIDTH - 1 : 0]}),
+        .out(t_sum)
+    );
+
     assign size         = (t_sum[2 * WIDTH : WIDTH - 2] > (4 << (WIDTH - 2))) ? 1'b1 : 1'b0;
 
     assign overflow_r   = (t_zr[2 * WIDTH] == 1'b1) ? !(&t_zr[2 * WIDTH : 2 * WIDTH - 3]) : |t_zr[2 * WIDTH : 2 * WIDTH - 3];
