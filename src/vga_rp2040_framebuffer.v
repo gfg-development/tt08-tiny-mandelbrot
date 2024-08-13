@@ -152,5 +152,5 @@ module vga_rp2040_framebuffer #(
     end
 
     assign reset_read_ptr   = v_sync;
-    assign ctrl_data_out    = {read, reset_read_ptr, reset_write_ptr, write_data, write_data_in};
+    assign ctrl_data_out    = {read, reset_read_ptr, write_data, reset_write_ptr, write_data_in};
 endmodule
