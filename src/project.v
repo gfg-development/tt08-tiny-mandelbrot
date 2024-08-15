@@ -86,18 +86,30 @@ module tt_um_gfg_development_tinymandelbrot (
     wire [1 : 0]  R;
     wire [1 : 0]  G;
     wire [1 : 0]  B;
+    wire [3 : 0]  gray;
     wire          hsync;
     wire          vsync;
 
-    assign R = 0;
-    assign G = 0;
-    assign B = 0;
-    assign hsync = 0;
-    assign vsync = 0;
+    wire          wrote_data;
 
     assign uio_oe = 8'hFF;
 
-    assign uio_out = {7'h00, reset_write_ptr};
+    vga_rp2040_framebuffer vga (
+        .clk(clk),
+        .rst_n(rst_n),
+
+        .v_sync_out(vsync),
+        .h_sync_out(hsync),
+        .gray_out(gray),
+
+        .ctrl_data_out(uio_out),
+        .data_in(ui_in[7 : 4]),
+
+        .write_data_in(ctr_out),
+        .reset_write_ptr(reset_write_ptr),
+        .write_data(valid_data),
+        .wrote_data(wrote_data)
+    );
 
     // The statemachine
     reg  [1 : 0]    state;
@@ -129,8 +141,10 @@ module tt_um_gfg_development_tinymandelbrot (
                 // Wait for framebuffer to be ready to write next pixel
                 2: 
                     begin
-                        run_pixel       <= 1'b1;
-                        state           <= 3;
+                        if (wrote_data == 1'b1) begin
+                            run_pixel       <= 1'b1;
+                            state           <= 3;
+                        end
                     end
 
                 // Write next pixel
