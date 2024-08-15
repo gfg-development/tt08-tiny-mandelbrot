@@ -33,6 +33,10 @@
 
 
 module mandelbrot_alu #( parameter WIDTH = 8) (
+    input  wire                            clk,
+    input  wire                            rst_n,
+    input  wire                            start,
+    output wire                            finished,
     input  wire signed [WIDTH - 1 : 0]     in_cr,
     input  wire signed [WIDTH - 1 : 0]     in_ci,
     input  wire signed [WIDTH - 1 : 0]     in_zr,
@@ -53,9 +57,33 @@ module mandelbrot_alu #( parameter WIDTH = 8) (
     wire                            overflow_r;
     wire                            overflow_i;
 
-    assign m1           = in_zr * in_zr;
-    assign m2           = in_zi * in_zi;
-    assign m3           = in_zr * in_zi;
+    bit_serial_mult #(.WIDTH(WIDTH)) mult_zr_zr (
+        .clk(clk),
+        .rst_n(rst_n),
+        .in_x(in_zr),
+        .in_y(in_zr),
+        .start(start),
+        .out(m1),
+        .finished(finished)
+    );
+
+    bit_serial_mult #(.WIDTH(WIDTH)) mult_zi_zi (
+        .clk(clk),
+        .rst_n(rst_n),
+        .in_x(in_zi),
+        .in_y(in_zi),
+        .start(start),
+        .out(m2)
+    );
+
+    bit_serial_mult #(.WIDTH(WIDTH)) mult_zr_zi (
+        .clk(clk),
+        .rst_n(rst_n),
+        .in_x(in_zr),
+        .in_y(in_zi),
+        .start(start),
+        .out(m3)
+    );
     
     assign t_zr         = {m1[2 * WIDTH - 1], m1} - {m2[2 * WIDTH - 1], m2} + {{3{in_cr[WIDTH - 1]}}, in_cr, {WIDTH-2{1'b0}}};
     assign t_zi         = {m3[2 * WIDTH - 1], m3, 1'b0} + {{4{in_ci[WIDTH - 1]}}, in_ci, {WIDTH-2{1'b0}}};

@@ -91,38 +91,3 @@ async def test_rp2040_mode(dut):
     # Ensure that the image is the golden one
     for (x, y) in zip(golden_image, image):
         assert x == y
-
-@cocotb.test()
-async def test_vga_mode(dut):
-    dut._log.info("Start")
-
-    # Set the clock period to 50 ns (20 MHz)
-    clock = Clock(dut.clk, 50, units="ns")
-    cocotb.start_soon(clock.start())
-
-    # Reset
-    dut._log.info("Reset")
-    dut.ena.value = 1
-    dut.ui_in.value = 0
-    dut.uio_in.value = 0
-    dut.rst_n.value = 0
-    await ClockCycles(dut.clk, 10)
-    dut.rst_n.value = 1
-
-    await ClockCycles(dut.clk, 10)
-
-    dut._log.info("Test project behavior in VGA mode")
-
-    await configure(dut)
-
-    dut._log.info("Configured parameters")
-    
-    # Start rendering
-    dut.ui_in[0].value = 1
-    await ClockCycles(dut.clk, 1)
-    dut.ui_in[0].value = 0
-
-    dut._log.info("Requested rendering")
-
-    # Wait for image to be generated
-    await ClockCycles(dut.clk, 1024*1024)

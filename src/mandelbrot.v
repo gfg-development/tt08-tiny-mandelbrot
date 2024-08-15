@@ -70,40 +70,49 @@ module mandelbrot #(
     reg         [BITWIDTH_WIDTH - 1 : 0]    x;
     reg         [BITWIDTH_HEIGHT - 1 : 0]   y;
 
-    always @(posedge clk) begin        
+    reg                                 alu_finished;
+    reg                                 l_alu_finished;
+    wire                                alu_start;
+
+    assign alu_start                    = (stopped == 1'b1) ? run : l_alu_finished;
+
+    always @(posedge clk) begin
+        l_alu_finished                  <= alu_finished;
         if (stopped == 1'b0) begin
-            if (size == 1'b1 || ctr == max_ctr || overflowed) begin
-                ctr                 <= 0;
-                overflowed          <= 0;
-                case (ctr_select)
-                    2'b00: ctr_out  <= ctr[3 : 0];
-                    2'b01: ctr_out  <= ctr[4 : 1];
-                    2'b10: ctr_out  <= ctr[5 : 2];
-                    2'b11: ctr_out  <= ctr[6 : 3];
-                endcase
+            if (alu_finished == 1'b1 && l_alu_finished == 1'b0) begin            
+                if (size == 1'b1 || ctr == max_ctr || overflowed) begin
+                    ctr                 <= 0;
+                    overflowed          <= 0;
+                    case (ctr_select)
+                        2'b00: ctr_out  <= ctr[3 : 0];
+                        2'b01: ctr_out  <= ctr[4 : 1];
+                        2'b10: ctr_out  <= ctr[5 : 2];
+                        2'b11: ctr_out  <= ctr[6 : 3];
+                    endcase
 
-                zr                  <= 0;
-                zi                  <= 0;
-                stopped             <= 1'b1;
+                    zr                  <= 0;
+                    zi                  <= 0;
+                    stopped             <= 1'b1;
 
-                if (x == WIDTH - 1) begin
-                    cr              <= cr_offset;
-                    ci              <= ci + {{(BITWIDTH - 2){1'b0}}, scaling} + 1;
+                    if (x == WIDTH - 1) begin
+                        cr              <= cr_offset;
+                        ci              <= ci + {{(BITWIDTH - 2){1'b0}}, scaling} + 1;
 
-                    x               <= 0;
-                    y               <= y + 1;
-                    if (y == HEIGHT - 1) begin
-                        finished    <= 1'b1;
+                        x               <= 0;
+                        y               <= y + 1;
+                        if (y == HEIGHT - 1) begin
+                            finished    <= 1'b1;
+                        end
+                    end else begin
+                        cr              <= cr + {{(BITWIDTH - 2){1'b0}}, scaling} + 1;
+                        x               <= x + 1;
                     end
                 end else begin
-                    cr              <= cr + {{(BITWIDTH - 2){1'b0}}, scaling} + 1;
-                    x               <= x + 1;
+                    zr                  <= out_zr;
+                    zi                  <= out_zi;
+                    ctr                 <= ctr + 1;
+                    overflowed          <= overflow;
                 end
-            end else begin
-                zr                  <= out_zr;
-                zi                  <= out_zi;
-                ctr                 <= ctr + 1;
-                overflowed          <= overflow;
             end
         end else begin
             if (run == 1'b1) begin
@@ -138,6 +147,10 @@ module mandelbrot #(
     assign running = !stopped;
 
     mandelbrot_alu #(.WIDTH(BITWIDTH)) alu (
+        .clk(clk),
+        .rst_n(!reset),
+        .start(alu_start),
+        .finished(alu_finished),
         .in_cr(in_cr),
         .in_ci(in_ci),
         .in_zr(in_zr),
