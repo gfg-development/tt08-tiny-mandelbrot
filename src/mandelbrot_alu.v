@@ -60,7 +60,7 @@ module mandelbrot_alu #( parameter WIDTH = 8) (
     radix4_serial_mult #(.WIDTH(WIDTH)) mult_zr_zr (
         .clk(clk),
         .rst_n(rst_n),
-        .in_x(in_zr),
+        .in_x(out_zr),
         .in_y(in_zr),
         .start(start),
         .out(m1),
@@ -70,7 +70,7 @@ module mandelbrot_alu #( parameter WIDTH = 8) (
     radix4_serial_mult #(.WIDTH(WIDTH)) mult_zi_zi (
         .clk(clk),
         .rst_n(rst_n),
-        .in_x(in_zi),
+        .in_x(out_zi),
         .in_y(in_zi),
         .start(start),
         .out(m2)
@@ -79,7 +79,7 @@ module mandelbrot_alu #( parameter WIDTH = 8) (
     radix4_serial_mult #(.WIDTH(WIDTH)) mult_zr_zi (
         .clk(clk),
         .rst_n(rst_n),
-        .in_x(in_zr),
+        .in_x(out_zr),
         .in_y(in_zi),
         .start(start),
         .out(m3)
