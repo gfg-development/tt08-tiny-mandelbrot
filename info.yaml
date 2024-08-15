@@ -17,8 +17,6 @@ project:
   # Source files must be in ./src and you must list each source file separately, one per line.
   # Don't forget to also update `PROJECT_SOURCES` in test/Makefile.
   source_files:
-    - "upper_adder.v"
-    - "adder.v"
     - "vga_rp2040_framebuffer.v"
     - "mandelbrot_alu.v"
     - "mandelbrot.v"

@@ -60,32 +60,12 @@ module mandelbrot_alu #( parameter WIDTH = 8) (
     assign m3           = in_zr * in_zi;
 
     assign diff_m1_m2 = {m1[2 * WIDTH - 1], m1} - {m2[2 * WIDTH - 1], m2};
-    /*adder #(.WIDTH(WIDTH + 3)) adder_zr (
-        .ina(diff_m1_m2[2 * WIDTH : WIDTH - 2]),
-        .inb({{3{in_cr[WIDTH - 1]}}, in_cr}),
-        .out(t_zr)
-    );*/
-
-    /*adder #(.WIDTH(WIDTH + 4)) adder_zi (
-        .ina({m3[2 * WIDTH - 1], m3[2 * WIDTH - 1 : WIDTH - 3]}),
-        .inb({{4{in_ci[WIDTH - 1]}}, in_ci}),
-        .out(t_zi)
-    );*/
 
     assign t_zr = diff_m1_m2[2 * WIDTH : WIDTH - 2] + {{3{in_cr[WIDTH - 1]}}, in_cr};
     assign t_zi = {m3[2 * WIDTH - 1], m3[2 * WIDTH - 1 : WIDTH - 3]} + {{4{in_ci[WIDTH - 1]}}, in_ci};
 
     assign out_zr       = t_zr[WIDTH - 1 : 0];
     assign out_zi       = t_zi[WIDTH - 1 : 0];
-
-    /*upper_adder #(
-        .WIDTH(2 * WIDTH + 1),
-        .RESULT_WIDTH(WIDTH + 3)
-    ) adder_sum (
-        .ina({1'b0, m1[2 * WIDTH - 1 : 0]}),
-        .inb({1'b0, m2[2 * WIDTH - 1 : 0]}),
-        .out(t_sum)
-    );*/
 
     assign t_sum = {1'b0, m1[2 * WIDTH - 1 : 0]} + {1'b0, m2[2 * WIDTH - 1 : 0]};
 
