@@ -40,7 +40,7 @@ module mandelbrot #(
     input  wire                     run,
     output wire                     running,
     input  wire [CTRWIDTH - 1 : 0]  max_ctr,
-    input  wire [3 : 0]             ctr_select,
+    input  wire [2 : 0]             ctr_select,
     input  wire [6 : 0]             scaling,
     input  wire [BITWIDTH - 1 : 0]  cr_offset,
     input  wire [BITWIDTH - 1 : 0]  ci_offset,
