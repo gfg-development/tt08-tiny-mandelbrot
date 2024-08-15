@@ -89,5 +89,7 @@ async def test_rp2040_mode(dut):
     assert dut.uo_out[5].value == 1
 
     # Ensure that the image is the golden one
-    for (x, y) in zip(golden_image, image):
+    for (i, (x, y)) in enumerate(zip(golden_image, image)):
+        if x != y:
+            dut._log.error("{} != {} @ {}", x, y, i)
         assert x == y

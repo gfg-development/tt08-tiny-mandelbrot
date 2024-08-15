@@ -57,7 +57,7 @@ module mandelbrot_alu #( parameter WIDTH = 8) (
     wire                            overflow_r;
     wire                            overflow_i;
 
-    bit_serial_mult #(.WIDTH(WIDTH)) mult_zr_zr (
+    radix4_serial_mult #(.WIDTH(WIDTH)) mult_zr_zr (
         .clk(clk),
         .rst_n(rst_n),
         .in_x(in_zr),
@@ -67,7 +67,7 @@ module mandelbrot_alu #( parameter WIDTH = 8) (
         .finished(finished)
     );
 
-    bit_serial_mult #(.WIDTH(WIDTH)) mult_zi_zi (
+    radix4_serial_mult #(.WIDTH(WIDTH)) mult_zi_zi (
         .clk(clk),
         .rst_n(rst_n),
         .in_x(in_zi),
@@ -76,7 +76,7 @@ module mandelbrot_alu #( parameter WIDTH = 8) (
         .out(m2)
     );
 
-    bit_serial_mult #(.WIDTH(WIDTH)) mult_zr_zi (
+    radix4_serial_mult #(.WIDTH(WIDTH)) mult_zr_zi (
         .clk(clk),
         .rst_n(rst_n),
         .in_x(in_zr),

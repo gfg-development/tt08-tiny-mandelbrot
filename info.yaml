@@ -19,6 +19,7 @@ project:
   source_files:
     - "vga_rp2040_framebuffer.v"
     - "bit_serial_mult.v"
+    - "radix4_serial_mult.v"
     - "mandelbrot_alu.v"
     - "mandelbrot.v"
     - "project.v"
