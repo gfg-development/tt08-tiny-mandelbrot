@@ -101,7 +101,19 @@ module tt_um_gfg_development_tinymandelbrot (
 
     assign uio_oe = 8'hFF;
 
-    vga_rp2040_framebuffer vga (
+    vga_rp2040_framebuffer #(
+        .LINE_VISIBLE(800),
+        .LINE_FRONT_PORCH(40),
+        .LINE_SYNC_PULSE(128),
+        .LINE_BACK_PORCH(88),
+
+        .ROW_VISIBLE(600),
+        .ROW_FRONT_PORCH(1),
+        .ROW_SYNC_PULSE(4),
+        .ROW_BACK_PORCH(23),
+
+        .SYNC_POLARITY(1)
+    ) vga (
         .clk(clk),
         .rst_n(rst_n),
 

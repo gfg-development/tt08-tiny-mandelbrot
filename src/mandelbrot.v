@@ -50,28 +50,28 @@ module mandelbrot #(
     localparam BITWIDTH_WIDTH   = $clog2(WIDTH);
     localparam BITWIDTH_HEIGHT  = $clog2(HEIGHT);
 
-    wire signed [BITWIDTH - 1 : 0]      in_cr;
-    wire signed [BITWIDTH - 1 : 0]      in_ci;
-    wire signed [BITWIDTH - 1 : 0]      in_zr;
-    wire signed [BITWIDTH - 1 : 0]      in_zi;
-    wire signed [BITWIDTH - 1 : 0]      out_zr;
-    wire signed [BITWIDTH - 1 : 0]      out_zi;
-    wire                                size;
-    wire                                overflow;
+    wire signed [BITWIDTH - 1 : 0]          in_cr;
+    wire signed [BITWIDTH - 1 : 0]          in_ci;
+    wire signed [BITWIDTH - 1 : 0]          in_zr;
+    wire signed [BITWIDTH - 1 : 0]          in_zi;
+    wire signed [BITWIDTH - 1 : 0]          out_zr;
+    wire signed [BITWIDTH - 1 : 0]          out_zi;
+    wire                                    size;
+    wire                                    overflow;
 
-    reg  signed [BITWIDTH - 1 : 0]      cr;
-    reg  signed [BITWIDTH - 1 : 0]      ci;
-    reg  signed [BITWIDTH - 1 : 0]      zr;
-    reg  signed [BITWIDTH - 1 : 0]      zi;
-    reg         [CTRWIDTH - 1 : 0]      ctr;
-    reg                                 stopped;
-    reg                                 overflowed;
+    reg  signed [BITWIDTH - 1 : 0]          cr;
+    reg  signed [BITWIDTH - 1 : 0]          ci;
+    reg  signed [BITWIDTH - 1 : 0]          zr;
+    reg  signed [BITWIDTH - 1 : 0]          zi;
+    reg         [CTRWIDTH - 1 : 0]          ctr;
+    reg                                     stopped;
+    reg                                     overflowed;
 
     reg         [BITWIDTH_WIDTH - 1 : 0]    x;
     reg         [BITWIDTH_HEIGHT - 1 : 0]   y;
 
-    reg                                 alu_finished;
-    wire                                alu_start;
+    wire                                    alu_finished;
+    wire                                    alu_start;
 
     assign alu_start                    = (stopped == 1'b1) ? run : alu_finished;
 
