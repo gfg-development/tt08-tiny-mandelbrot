@@ -38,7 +38,6 @@ module radix4_serial_mult #( parameter WIDTH = 8) (
     output wire [2 * WIDTH - 1 : 0] out,
     output wire                     finished
 );
-    parameter EXTENSION                 = WIDTH % 2;
     parameter LOCAL_WIDTH               = (WIDTH + 1) / 2;
     parameter FULL_WIDTH                = 2 * LOCAL_WIDTH;
     parameter WIDTH_CTR                 = $clog2(LOCAL_WIDTH);
@@ -47,10 +46,10 @@ module radix4_serial_mult #( parameter WIDTH = 8) (
     wire  [2 * LOCAL_WIDTH - 1 : 0] int_y;
 
     generate
-        if (FULL_WIDTH != WIDTH) begin
+        if (FULL_WIDTH != WIDTH) begin : gen_sign_extion
             assign int_x        = {in_x[WIDTH - 1], in_x};
             assign int_y        = {in_y[WIDTH - 1], in_y};
-        end else begin
+        end else begin : gen_pass_through
             assign int_x        = in_x;
             assign int_y        = in_y;
         end
@@ -63,7 +62,6 @@ module radix4_serial_mult #( parameter WIDTH = 8) (
 
     
     wire  [FULL_WIDTH : 0]          inverted_y;
-    wire  [FULL_WIDTH : 0]          pp;
     wire  [FULL_WIDTH : 0]          y;
     wire  [FULL_WIDTH + 1 : 0]      y_shifted;
     wire  [FULL_WIDTH + 1 : 0]      shift_to_adder;

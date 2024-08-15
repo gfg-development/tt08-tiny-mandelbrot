@@ -46,7 +46,7 @@ module tt_um_gfg_development_tinymandelbrot (
         l_sen   <= {l_sen[1 : 0], ui_in[0]};
 
         if (l_sen[2] == 1'b1 && l_sclk[2] == 1'b0 && l_sclk[1] == 1'b1) begin
-            configuration   <= {l_sdata[2], configuration[32 : 1]};
+            configuration   <= {l_sdata[2], configuration[51 : 1]};
         end
     end
 
@@ -91,6 +91,13 @@ module tt_um_gfg_development_tinymandelbrot (
     wire          vsync;
 
     wire          wrote_data;
+
+    color_map color_map (
+        .gray(gray),
+        .R(R),
+        .G(G),
+        .B(B)
+    );
 
     assign uio_oe = 8'hFF;
 
