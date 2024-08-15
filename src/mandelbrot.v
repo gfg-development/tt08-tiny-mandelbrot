@@ -40,7 +40,7 @@ module mandelbrot #(
     input  wire                     run,
     output wire                     running,
     input  wire [CTRWIDTH - 1 : 0]  max_ctr,
-    input  wire [1 : 0]             ctr_select,
+    input  wire [2 : 0]             ctr_select,
     input  wire [1 : 0]             scaling,
     input  wire [BITWIDTH - 1 : 0]  cr_offset,
     input  wire [BITWIDTH - 1 : 0]  ci_offset,
@@ -82,10 +82,14 @@ module mandelbrot #(
                     ctr                 <= 0;
                     overflowed          <= 0;
                     case (ctr_select)
-                        2'b00: ctr_out  <= ctr[3 : 0];
-                        2'b01: ctr_out  <= ctr[4 : 1];
-                        2'b10: ctr_out  <= ctr[5 : 2];
-                        2'b11: ctr_out  <= ctr[6 : 3];
+                        3'b000: ctr_out  <= ctr[3 : 0];
+                        3'b001: ctr_out  <= ctr[4 : 1];
+                        3'b010: ctr_out  <= ctr[5 : 2];
+                        3'b011: ctr_out  <= ctr[6 : 3];
+                        3'b100: ctr_out  <= ctr[7 : 4];
+                        3'b101: ctr_out  <= ctr[8 : 5];
+                        3'b110: ctr_out  <= ctr[9 : 6];
+                        3'b111: ctr_out  <= {ctr[9], ctr[5], ctr[0]};
                     endcase
 
                     zr                  <= 0;
