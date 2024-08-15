@@ -69,10 +69,10 @@ module toplevel #(
         .clk(clk),
         .in(uio_out[3 : 0]),
         .out(ui_in[7 : 4]),
-        .write(uio_out[4]),
+        .write(uio_out[5]),
         .read(uio_out[7]),
         .reset_read_ptr(uio_out[6]),
-        .reset_write_ptr(uio_out[5])
+        .reset_write_ptr(uio_out[4])
     );
 
     clk_wiz_0 vga_clk (

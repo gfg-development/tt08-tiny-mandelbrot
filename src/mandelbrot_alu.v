@@ -50,8 +50,10 @@ module mandelbrot_alu #( parameter WIDTH = 8) (
     wire signed [2 * WIDTH - 1 : 0] m2;
     wire signed [2 * WIDTH - 1 : 0] m3;
 
-    wire signed [2 * WIDTH     : 0] t_zr;
-    wire signed [2 * WIDTH + 1 : 0] t_zi;
+    wire signed [2 * WIDTH     : 0] diff_m1_m2;
+
+    wire signed [WIDTH + 2     : 0] t_zr;
+    wire signed [WIDTH + 3     : 0] t_zi;
 
     wire        [2 * WIDTH     : 0] t_sum;
     wire                            overflow_r;
@@ -84,17 +86,20 @@ module mandelbrot_alu #( parameter WIDTH = 8) (
         .start(start),
         .out(m3)
     );
-    
-    assign t_zr         = {m1[2 * WIDTH - 1], m1} - {m2[2 * WIDTH - 1], m2} + {{3{in_cr[WIDTH - 1]}}, in_cr, {WIDTH-2{1'b0}}};
-    assign t_zi         = {m3[2 * WIDTH - 1], m3, 1'b0} + {{4{in_ci[WIDTH - 1]}}, in_ci, {WIDTH-2{1'b0}}};
 
-    assign out_zr       = t_zr[2 * WIDTH - 3 : WIDTH - 2];
-    assign out_zi       = t_zi[2 * WIDTH - 3 : WIDTH - 2];
+    assign diff_m1_m2 = {m1[2 * WIDTH - 1], m1} - {m2[2 * WIDTH - 1], m2};
 
-    assign t_sum        = {1'b0, m1[2 * WIDTH - 1 : 0]} + {1'b0, m2[2 * WIDTH - 1 : 0]};
+    assign t_zr = diff_m1_m2[2 * WIDTH : WIDTH - 2] + {{3{in_cr[WIDTH - 1]}}, in_cr};
+    assign t_zi = {m3[2 * WIDTH - 1], m3[2 * WIDTH - 1 : WIDTH - 3]} + {{4{in_ci[WIDTH - 1]}}, in_ci};
+
+    assign out_zr       = t_zr[WIDTH - 1 : 0];
+    assign out_zi       = t_zi[WIDTH - 1 : 0];
+
+    assign t_sum = {1'b0, m1[2 * WIDTH - 1 : 0]} + {1'b0, m2[2 * WIDTH - 1 : 0]};
+
     assign size         = (t_sum[2 * WIDTH : WIDTH - 2] > (4 << (WIDTH - 2))) ? 1'b1 : 1'b0;
 
-    assign overflow_r   = (t_zr[2 * WIDTH] == 1'b1) ? !(&t_zr[2 * WIDTH : 2 * WIDTH - 3]) : |t_zr[2 * WIDTH : 2 * WIDTH - 3];
-    assign overflow_i   = (t_zi[2 * WIDTH + 1] == 1'b1) ? !(&t_zi[2 * WIDTH + 1 : 2 * WIDTH - 3]) : |t_zi[2 * WIDTH + 1 : 2 * WIDTH - 3]; 
+    assign overflow_r   = (t_zr[WIDTH + 2] == 1'b1) ? !(&t_zr[WIDTH + 2 : WIDTH - 1]) : |t_zr[WIDTH + 2 : WIDTH - 1];
+    assign overflow_i   = (t_zi[WIDTH + 3] == 1'b1) ? !(&t_zi[WIDTH + 3 : WIDTH - 1]) : |t_zi[WIDTH + 3 : WIDTH - 1]; 
     assign overflow     = overflow_r | overflow_i;
 endmodule
