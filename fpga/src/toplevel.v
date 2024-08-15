@@ -100,7 +100,7 @@ module toplevel #(
     
     reg [2 : 0]     state               = 0;
     reg [5 : 0]     shift_ctr;
-    reg [32 : 0]    configuration;
+    reg [51 : 0]    configuration;
     reg [2  : 0]    configuration_ptr   = 0;
     reg             enable;
     reg             sclk;
@@ -119,28 +119,28 @@ module toplevel #(
                         if (next == 1'b1 && l_next == 1'b0) begin
                             case (configuration_ptr)
                                 0:
-                                    configuration   <= 33'h03CF10404;
+                                    configuration   <= {10'h00F, 3'b000, 7'h7F, 16'hC400, 16'h8080};
 
                                 1:
-                                    configuration   <= 33'h07DF10404;
+                                    configuration   <= {10'h01F, 3'b001, 7'h7F, 16'hC400, 16'h8080};
 
                                 2:
-                                    configuration   <= 33'h0FEF10404;
+                                    configuration   <= {10'h03F, 3'b010, 7'h7F, 16'hC400, 16'h8080};
 
                                 3:
-                                    configuration   <= 33'h1FFF10404;
+                                    configuration   <= {10'h07F, 3'b011, 7'h7F, 16'hC400, 16'h8080};
 
                                 4:
-                                    configuration   <= 33'h03CF10404;
+                                    configuration   <= {10'h00F, 3'b000, 7'h7F, 16'hC400, 16'h8080};
 
                                 5:
-                                    configuration   <= 33'h07CF10404;
+                                    configuration   <= {10'h01F, 3'b000, 7'h7F, 16'hC400, 16'h8080};
 
                                 6:
-                                    configuration   <= 33'h0FCF10404;
+                                    configuration   <= {10'h03F, 3'b000, 7'h7F, 16'hC400, 16'h8080};
 
                                 7:
-                                    configuration   <= 33'h1FCF10404;
+                                    configuration   <= {10'h07F, 3'b000, 7'h7F, 16'hC400, 16'h8080};
                             endcase
 
                             state                   <= 1;
@@ -171,7 +171,7 @@ module toplevel #(
                         sclk                        <= 1'b0;
                         configuration               <= configuration >> 1;
                         
-                        if (shift_ctr == 32) begin
+                        if (shift_ctr == 51) begin
                             state                   <= 5;
                             configuration_ptr       <= configuration_ptr + 1;
                         end else begin

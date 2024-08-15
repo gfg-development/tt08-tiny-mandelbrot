@@ -98,7 +98,7 @@ module mandelbrot #(
 
                     if (x == WIDTH - 1) begin
                         cr              <= cr_offset;
-                        ci              <= ci + {{(BITWIDTH - 2){1'b0}}, scaling} + 1;
+                        ci              <= ci + {{(BITWIDTH - 7){1'b0}}, scaling} + 1;
 
                         x               <= 0;
                         y               <= y + 1;
@@ -106,7 +106,7 @@ module mandelbrot #(
                             finished    <= 1'b1;
                         end
                     end else begin
-                        cr              <= cr + {{(BITWIDTH - 2){1'b0}}, scaling} + 1;
+                        cr              <= cr + {{(BITWIDTH - 7){1'b0}}, scaling} + 1;
                         x               <= x + 1;
                     end
                 end else begin
