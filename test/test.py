@@ -5,10 +5,10 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles, RisingEdge, FallingEdge
 
-WIDTH = 320
-HEIGHT = 240
+WIDTH = 400
+HEIGHT = 300
 
-SCALING = 4
+SCALING = 4*2**5
 CR_OFFSET = - (511 * WIDTH // 640) * SCALING
 CI_OFFSET = - (HEIGHT // 2) * SCALING
 MAX_CTR = 15
@@ -26,12 +26,13 @@ def read_ppm(fname):
 
 async def configure(dut):
     # Load configuration via shift register
-    configuration = (MAX_CTR << 26) | ((SCALING - 1) << 22) | ((CI_OFFSET & 0x7FF) << 11) | (CR_OFFSET & 0x7FF)
+    configuration = (MAX_CTR << 42) | ((SCALING - 1) << 32) | ((CI_OFFSET & 0xFFFF) << 16) | (CR_OFFSET & 0xFFFF)
+    dut._log.info("Configuration: {:X}".format(configuration))
 
     dut.ui_in[0].value = 1
     dut.ui_in[2].value = 0
 
-    for _ in range(33):
+    for _ in range(52):
         dut.ui_in[1].value = configuration & 0x1
         configuration = configuration >> 1
         dut.ui_in[2].value = 0
@@ -45,7 +46,7 @@ async def configure(dut):
 async def test_rp2040_mode(dut):
     dut._log.info("Start")
 
-    # Set the clock period to 50 ns (20 MHz)
+    # Set the clock period to 25 ns (40 MHz)
     clock = Clock(dut.clk, 50, units="ns")
     cocotb.start_soon(clock.start())
 
@@ -70,7 +71,7 @@ async def test_rp2040_mode(dut):
 
     dut._log.info("Rendering started")
 
-    golden_image = read_ppm("image_15_4_-1020_-480.golden.ppm")
+    golden_image = read_ppm("image_15_128_-40832_-19200.golden.ppm")
     image = []
 
     with open("image_{}_{}_{}_{}.ppm".format(MAX_CTR, SCALING, CR_OFFSET, CI_OFFSET), "w+") as f:
