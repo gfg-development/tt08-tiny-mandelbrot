@@ -26,8 +26,14 @@ module tb ();
   wire       running;
   wire       finished;
 
+  wire       vsync;
+  wire       hsync;
+
   assign running  = uo_out[4];
   assign finished = uo_out[5];
+
+  assign vsync = uo_out[3];
+  assign hsync = uo_out[7];
 
   // Replace tt_um_example with your module name:
   tt_um_gfg_development_tinymandelbrot user_project (
