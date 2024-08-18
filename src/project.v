@@ -18,8 +18,14 @@ module tt_um_gfg_development_tinymandelbrot (
     // List all unused inputs to prevent warnings
     wire _unused = &{ena, clk, rst_n, 1'b0};
 
-    wire reset;
-    assign reset = !rst_n;
+    // reset generation
+    wire combined_rst_n;
+    reg  latched_rst_n;
+
+    always @(negedge clk) begin
+        latched_rst_n       <= rst_n;
+    end
+    assign combined_rst_n   = latched_rst_n && rst_n;
 
     // output_select == 1 --> use binary interface, 0 --> VGA interface
     wire output_select;
@@ -62,7 +68,7 @@ module tt_um_gfg_development_tinymandelbrot (
         .WIDTH(400)
     ) mandelbrot (
         .clk(clk),
-        .reset(reset),
+        .rst_n(combined_rst_n),
         .run(run_pixel),
         .running(running),
         .max_ctr(configuration[51 : 42]),
@@ -115,7 +121,7 @@ module tt_um_gfg_development_tinymandelbrot (
         .SYNC_POLARITY(1)
     ) vga (
         .clk(clk),
-        .rst_n(rst_n),
+        .rst_n(combined_rst_n),
 
         .v_sync_out(vsync),
         .h_sync_out(hsync),
@@ -134,10 +140,10 @@ module tt_um_gfg_development_tinymandelbrot (
     reg  [1 : 0]    state;
     reg             reset_write_ptr;
 
-    always @(posedge clk) begin
+    always @(posedge clk or negedge combined_rst_n) begin
         reset_write_ptr                     <= 1'b0;
         run_pixel                           <= 1'b0;
-        if (reset == 1'b1) begin
+        if (!combined_rst_n) begin
             state                           <= 0;
         end else begin
             case (state)
