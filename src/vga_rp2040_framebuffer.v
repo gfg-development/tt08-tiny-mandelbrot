@@ -51,8 +51,6 @@ module vga_rp2040_framebuffer #(
     input wire                              write_data,
     output reg                              wrote_data
 );
-    localparam  PIXEL_DIV       = 2;
-
     /* Calculate some helpfull constants */
     parameter WIDTH_PIXEL_CTR   = $clog2(LINE_VISIBLE + LINE_FRONT_PORCH + LINE_SYNC_PULSE + LINE_BACK_PORCH);
     parameter WIDTH_LINE_CTR    = $clog2(ROW_VISIBLE + ROW_FRONT_PORCH + ROW_SYNC_PULSE + ROW_BACK_PORCH);
@@ -152,5 +150,5 @@ module vga_rp2040_framebuffer #(
     end
 
     assign reset_read_ptr   = v_sync;
-    assign ctrl_data_out    = {read, reset_read_ptr, reset_write_ptr, write_data, write_data_in};
+    assign ctrl_data_out    = {read, reset_read_ptr, write_data, reset_write_ptr, write_data_in};
 endmodule
