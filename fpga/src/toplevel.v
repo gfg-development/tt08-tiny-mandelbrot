@@ -119,28 +119,28 @@ module toplevel #(
                         if (next == 1'b1 && l_next == 1'b0) begin
                             case (configuration_ptr)
                                 0:
-                                    configuration   <= {10'h00F, 3'b000, 7'h7F, 16'hC400, 16'h8080};
+                                    configuration   <= {10'h00F, 3'b000, 7'h7F, 16'hB500, 16'h6080};
 
                                 1:
-                                    configuration   <= {10'h01F, 3'b001, 7'h7F, 16'hC400, 16'h8080};
+                                    configuration   <= {10'h01F, 3'b001, 7'h7F, 16'hB500, 16'h6080};
 
                                 2:
-                                    configuration   <= {10'h03F, 3'b010, 7'h7F, 16'hC400, 16'h8080};
+                                    configuration   <= {10'h03F, 3'b010, 7'h7F, 16'hB500, 16'h6080};
 
                                 3:
-                                    configuration   <= {10'h07F, 3'b011, 7'h7F, 16'hC400, 16'h8080};
+                                    configuration   <= {10'h07F, 3'b011, 7'h7F, 16'hB500, 16'h6080};
 
                                 4:
-                                    configuration   <= {10'h00F, 3'b000, 7'h7F, 16'hC400, 16'h8080};
+                                    configuration   <= {10'h00F, 3'b000, 7'h7F, 16'hB500, 16'h6080};
 
                                 5:
-                                    configuration   <= {10'h01F, 3'b000, 7'h7F, 16'hC400, 16'h8080};
+                                    configuration   <= {10'h01F, 3'b000, 7'h7F, 16'hB500, 16'h6080};
 
                                 6:
-                                    configuration   <= {10'h03F, 3'b000, 7'h7F, 16'hC400, 16'h8080};
+                                    configuration   <= {10'h03F, 3'b000, 7'h7F, 16'hB500, 16'h6080};
 
                                 7:
-                                    configuration   <= {10'h07F, 3'b000, 7'h7F, 16'hC400, 16'h8080};
+                                    configuration   <= {10'h07F, 3'b000, 7'h7F, 16'hB500, 16'h6080};
                             endcase
 
                             state                   <= 1;

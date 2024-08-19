@@ -29,24 +29,17 @@
     input  wire         write,
     input  wire         reset_write_ptr
  );
-    reg  [3 : 0]         ram [76799 : 0];
+    reg  [3 : 0]         ram [119999 : 0];
     wire [16 : 0]        read_ptr;
-    reg  [8 : 0]         read_ptr_row;
-    reg  [8 : 0]         read_ptr_col;
+    reg  [9 : 0]         read_ptr_row;
+    reg  [9 : 0]         read_ptr_col;
     reg  [16 : 0]        write_ptr;
     reg  [3 : 0]         output_buffer;
     reg  [3 : 0]         ram_output;
 
-    assign read_ptr = read_ptr_col + read_ptr_row[8 : 1] * 320;
+    assign read_ptr = read_ptr_col + read_ptr_row[9 : 1] * 400;
 
     always @(posedge clk) begin
-        /*if (read_ptr_col == 0) begin
-            output_buffer           <= 15;
-        end else if (read_ptr_row[8 : 1] == 0) begin
-            output_buffer           <= 8;
-        end else begin
-            output_buffer           <= 0;
-        end*/
         output_buffer               <= ram[read_ptr];
 
         if (write == 1'b1) begin
@@ -55,7 +48,7 @@
         end
 
         if (read == 1'b1) begin
-            if (read_ptr_col == 319) begin
+            if (read_ptr_col == 399) begin
                 read_ptr_col        <= 0;
                 read_ptr_row        <= read_ptr_row + 1;
             end else begin
