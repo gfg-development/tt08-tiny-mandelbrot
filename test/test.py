@@ -87,7 +87,10 @@ async def test_rp2040_mode(dut):
         for y in range(HEIGHT):
             dut._log.info("Line: {}".format(y))
             for _ in range(WIDTH):
-                await FallingEdge(dut.running)
+                timeout = Timer(5000, "ns")
+                ret = await First(FallingEdge(dut.running), timeout)
+                assert ret != timeout
+
                 await RisingEdge(dut.clk)
                 pixel_value = int(str(dut.uo_out.value[4 : 7]), 2)
                 image.append(pixel_value)
