@@ -158,6 +158,7 @@ module mandelbrot #(
         .clk(clk),
         .rst_n(rst_n),
         .start(alu_start),
+        .first_iteration(stopped),
         .finished(alu_finished),
         .in_cr(in_cr),
         .in_ci(in_ci),
