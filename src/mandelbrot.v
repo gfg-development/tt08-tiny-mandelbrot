@@ -76,8 +76,12 @@ module mandelbrot #(
     wire                                    alu_finished;
     wire                                    alu_start;
 
-    assign alu_start                    = (stopped == 1'b1) ? run : alu_finished_edge;
+    wire                                    break_criteria;
+
+    assign alu_start                    = (stopped == 1'b1 || break_criteria == 1'b1) ? run : alu_finished;
     assign alu_finished_edge            = l_alu_finished[1] == 1'b1 && l_alu_finished[0] == 1'b0;
+
+    assign break_criteria               = size == 1'b1 || ctr == max_ctr || overflowed;
 
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -87,8 +91,8 @@ module mandelbrot #(
         end else begin
             l_alu_finished              <= {alu_finished, l_alu_finished[1]};
             if (stopped == 1'b0) begin
-                if (alu_finished_edge == 1'b1) begin            
-                    if (size == 1'b1 || ctr == max_ctr || overflowed) begin
+                if (alu_finished == 1'b1) begin            
+                    if (break_criteria) begin
                         ctr                 <= 0;
                         overflowed          <= 0;
                         case (ctr_select)
