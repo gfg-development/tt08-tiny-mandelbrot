@@ -59,7 +59,6 @@ module vga_rp2040_framebuffer #(
 
     wire                            v_sync;
     wire                            v_blank;
-    wire                            v_next;
 
     wire [WIDTH_PIXEL_CTR - 1 : 0]  pixel_ctr;
 
