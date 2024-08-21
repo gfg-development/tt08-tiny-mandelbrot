@@ -3,7 +3,7 @@
 
 import cocotb
 from cocotb.clock import Clock
-from cocotb.triggers import ClockCycles, RisingEdge, FallingEdge
+from cocotb.triggers import ClockCycles, RisingEdge, FallingEdge, Timer, First
 from cocotb.utils import get_sim_time
 
 WIDTH = 400
@@ -73,7 +73,9 @@ async def test_rp2040_mode(dut):
     
     dut._log.info("Configured parameters")
 
-    await FallingEdge(dut.finished)
+    timeout = Timer(1000, "ns")
+    ret = await First(FallingEdge(dut.finished), timeout)
+    assert ret != timeout
 
     dut._log.info("Rendering started")
 
