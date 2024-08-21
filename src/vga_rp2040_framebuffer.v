@@ -109,7 +109,7 @@ module vga_rp2040_framebuffer #(
 
     assign before_pixel_ctr = pixel_ctr - (LINE_FRONT_PORCH + LINE_SYNC_PULSE + LINE_BACK_PORCH - 3);
 
-    assign read = (before_pixel_ctr < LINE_VISIBLE) ? (before_pixel_ctr[0]) && !v_blank : 1'b0; // (!pixel_ctr[0] && ((pixel_ctr[WIDTH_PIXEL_CTR - 1 : 1] < LINE_VISIBLE / 2 - 1) || (pixel_ctr[WIDTH_PIXEL_CTR - 1 : 1] == (LINE_VISIBLE + LINE_FRONT_PORCH + LINE_SYNC_PULSE + LINE_BACK_PORCH) / 2 - 1))) && !v_blank;
+    assign read = (before_pixel_ctr < LINE_VISIBLE) ? (before_pixel_ctr[0]) && !v_blank : 1'b0;
 
     always @(posedge clk) begin
         wrote_data                      <= write_data;

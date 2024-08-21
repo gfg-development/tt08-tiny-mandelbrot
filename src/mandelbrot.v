@@ -80,62 +80,63 @@ module mandelbrot #(
             finished                    <= 1'b1;
             stopped                     <= 1'b1;
         end else begin
-          if (stopped == 1'b0) begin
-              if (alu_finished == 1'b1) begin            
-                  if (size == 1'b1 || ctr == max_ctr || overflowed) begin
-                      ctr                 <= 0;
-                      overflowed          <= 0;
-                      case (ctr_select)
-                          3'b000: ctr_out  <= ctr[3 : 0];
-                          3'b001: ctr_out  <= ctr[4 : 1];
-                          3'b010: ctr_out  <= ctr[5 : 2];
-                          3'b011: ctr_out  <= ctr[6 : 3];
-                          3'b100: ctr_out  <= ctr[7 : 4];
-                          3'b101: ctr_out  <= ctr[8 : 5];
-                          3'b110: ctr_out  <= ctr[9 : 6];
-                          3'b111: ctr_out  <= {ctr[9], ctr[6], ctr[3], ctr[0]};
-                      endcase
+            if (stopped == 1'b0) begin
+                if (alu_finished == 1'b1) begin            
+                    if (size == 1'b1 || ctr == max_ctr || overflowed) begin
+                        ctr                 <= 0;
+                        overflowed          <= 0;
+                        case (ctr_select)
+                            3'b000: ctr_out  <= ctr[3 : 0];
+                            3'b001: ctr_out  <= ctr[4 : 1];
+                            3'b010: ctr_out  <= ctr[5 : 2];
+                            3'b011: ctr_out  <= ctr[6 : 3];
+                            3'b100: ctr_out  <= ctr[7 : 4];
+                            3'b101: ctr_out  <= ctr[8 : 5];
+                            3'b110: ctr_out  <= ctr[9 : 6];
+                            3'b111: ctr_out  <= {ctr[9], ctr[6], ctr[3], ctr[0]};
+                        endcase
 
-                      zr                  <= 0;
-                      zi                  <= 0;
-                      stopped             <= 1'b1;
+                        zr                  <= 0;
+                        zi                  <= 0;
+                        stopped             <= 1'b1;
 
-                      if (x == WIDTH - 1) begin
-                          cr              <= cr_offset;
-                          ci              <= ci + {{(BITWIDTH - 7){1'b0}}, scaling} + 1;
+                        if (x == WIDTH - 1) begin
+                            cr              <= cr_offset;
+                            ci              <= ci + {{(BITWIDTH - 7){1'b0}}, scaling} + 1;
 
-                          x               <= 0;
-                          y               <= y + 1;
-                          if (y == HEIGHT - 1) begin
-                              finished    <= 1'b1;
-                          end
-                      end else begin
-                          cr              <= cr + {{(BITWIDTH - 7){1'b0}}, scaling} + 1;
-                          x               <= x + 1;
-                      end
-                  end else begin
-                      zr                  <= out_zr;
-                      zi                  <= out_zi;
-                      ctr                 <= ctr + 1;
-                      overflowed          <= overflow;
-                  end
-              end
-          end else begin
-              if (run == 1'b1) begin
-                  finished            <= 1'b0;
-                  stopped             <= 1'b0;
-              end
-              if (finished == 1'b1) begin
-                  cr                 <= cr_offset;
-                  ci                 <= ci_offset;
-                  zr                 <= 0;
-                  zi                 <= 0;
-                  ctr                <= 0;
-                  overflowed         <= 0;
-                  x                  <= 0;
-                  y                  <= 0;
-              end
-          end
+                            x               <= 0;
+                            y               <= y + 1;
+                            if (y == HEIGHT - 1) begin
+                                finished    <= 1'b1;
+                            end
+                        end else begin
+                            cr              <= cr + {{(BITWIDTH - 7){1'b0}}, scaling} + 1;
+                            x               <= x + 1;
+                        end
+                    end else begin
+                        zr                  <= out_zr;
+                        zi                  <= out_zi;
+                        ctr                 <= ctr + 1;
+                        overflowed          <= overflow;
+                    end
+                end
+            end else begin
+                if (run == 1'b1) begin
+                    finished            <= 1'b0;
+                    stopped             <= 1'b0;
+                end
+                
+                if (finished == 1'b1) begin
+                    cr                 <= cr_offset;
+                    ci                 <= ci_offset;
+                    zr                 <= 0;
+                    zi                 <= 0;
+                    ctr                <= 0;
+                    overflowed         <= 0;
+                    x                  <= 0;
+                    y                  <= 0;
+                end
+            end
         end      
     end
 

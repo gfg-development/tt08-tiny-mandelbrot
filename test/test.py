@@ -69,6 +69,9 @@ async def test_rp2040_mode(dut):
 
     dut._log.info("Test project behavior in RP2040 mode")
 
+    await Timer(800, "us")
+    dut._log.info("Waited for 800 us to wait for non x in VGA component")
+
     await configure(dut)
     
     dut._log.info("Configured parameters")
@@ -191,22 +194,22 @@ async def test_mode_vga(dut):
             f = open("image_vga_{}_{}_{}_{}_{}.ppm".format(frame_nr, MAX_CTR, SCALING, CR_OFFSET, CI_OFFSET), "w+")
             f.write("P3\r\n{} {}\r\n3\r\n".format(VGA_WIDTH, VGA_HEIGHT))
 
-            dut.log.info("VSync - start of frame {}".format(frame_nr))
+            dut._log.info("VSync - start of frame {}".format(frame_nr))
             
             if frame_nr == 14:
-                dut.log.info("Got 14 frames, compare the last one to the golden one")
+                dut._log.info("Got 14 frames, compare the last one to the golden one")
                 break
 
             pixel_nr = 0
             image = []
 
         if dut.vsync.value == 0 and old_vsync == 1:
-            dut.log.info("VSync end")
+            dut._log.info("VSync end")
             last_vsync_end = time
             assert last_vsync_end - last_vsync_start == FRAME_SYNC_PULSE
 
         if dut.hsync.value == 1 and old_hsync == 0:
-            dut.log.info("HSync start")
+            dut._log.info("HSync start")
             if last_hsync_start is not None:
                 assert time - last_hsync_start == WHOLE_LINE
 
@@ -219,8 +222,8 @@ async def test_mode_vga(dut):
                 f.write("\r\n")
 
         if dut.hsync.value == 0 and old_hsync == 1:
-            dut.log.info("HSync end")
-            dut.log.info("Read pointers: {} {}".format(read_ptr_h, read_ptr_v))
+            dut._log.info("HSync end")
+            dut._log.info("Read pointers: {} {}".format(read_ptr_h, read_ptr_v))
             last_hsync_end = time
             if last_hsync_start is not None:
                 assert last_hsync_end - last_hsync_start == LINE_SYNC_PULSE
@@ -252,11 +255,11 @@ async def test_mode_vga(dut):
         if dut.reset_read_ptr.value == 1 and old_reset_read_ptr == 0:
             read_ptr_h = 0
             read_ptr_v = 0
-            dut.log.info("Reset read pointer")
+            dut._log.info("Reset read pointer")
 
         if dut.reset_write_ptr.value == 1 and old_reset_write_ptr == 0:
             write_ptr = 0
-            dut.log.info("Reset write pointer")
+            dut._log.info("Reset write pointer")
 
         if dut.write.value == 1 and old_write == 0:
             framebuffer[write_ptr] = int(dut.write_data.value)
