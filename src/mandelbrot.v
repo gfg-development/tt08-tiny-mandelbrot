@@ -76,7 +76,7 @@ module mandelbrot #(
     wire                                    alu_finished;
     wire                                    alu_start;
 
-    assign alu_start                    = (stopped == 1'b1) ? run : alu_finished_edge[1];
+    assign alu_start                    = (stopped == 1'b1) ? run : alu_finished_edge;
     assign alu_finished_edge            = l_alu_finished[1] == 1'b1 && l_alu_finished[0] == 1'b0;
 
     always @(posedge clk or negedge rst_n) begin
