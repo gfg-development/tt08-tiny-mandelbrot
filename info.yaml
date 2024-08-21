@@ -19,6 +19,7 @@ project:
   source_files:
     - "color_map.v"
     - "vga_rp2040_framebuffer.v"
+    - "vga_timing.v"
     - "bit_serial_mult.v"
     - "radix4_serial_mult.v"
     - "mandelbrot_alu.v"

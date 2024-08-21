@@ -5,7 +5,7 @@
 SIM ?= icarus
 TOPLEVEL_LANG ?= verilog
 SRC_DIR = $(PWD)/../src
-PROJECT_SOURCES = project.v mandelbrot.v mandelbrot_alu.v vga_rp2040_framebuffer.v bit_serial_mult.v radix4_serial_mult.v color_map.v
+PROJECT_SOURCES = project.v mandelbrot.v mandelbrot_alu.v vga_rp2040_framebuffer.v vga_timing.v bit_serial_mult.v radix4_serial_mult.v color_map.v
 
 ifneq ($(GATES),yes)
 
