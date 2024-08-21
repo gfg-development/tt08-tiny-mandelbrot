@@ -14,7 +14,7 @@ CR_OFFSET = - (511 * WIDTH // 640) * SCALING
 CI_OFFSET = - (HEIGHT // 2) * SCALING
 MAX_CTR = 15
 
-def read_ppm(fname):
+def read_ppm(fname, rgb=False):
     with open(fname) as f:
         # Ignore the header
         for _ in range(3):
@@ -22,7 +22,12 @@ def read_ppm(fname):
         pixel_values = []
 
         for line in f:
-            pixel_values.extend([int(x) for x in line.split()])
+            rgb_values = [int(x) for x in line.strip().split()]
+            if rgb:
+                for i in range(len(rgb_values) // 3):
+                    pixel_values.append((rgb_values[3 * i], rgb_values[3 * i + 1], rgb_values[3 * i + 2]))
+            else:
+                pixel_values.extend(rgb_values)
     return pixel_values
 
 async def configure(dut):
@@ -182,8 +187,13 @@ async def test_mode_vga(dut):
             f.write("P3\r\n{} {}\r\n3\r\n".format(VGA_WIDTH, VGA_HEIGHT))
 
             dut.log.info("VSync - start of frame {}".format(frame_nr))
+            
+            if frame_nr == 14:
+                dut.log.info("Got 14 frames, compare the last one to the golden one")
+                break
 
             pixel_nr = 0
+            image = []
 
         if dut.vsync.value == 0 and old_vsync == 1:
             dut.log.info("VSync end")
@@ -270,3 +280,10 @@ async def test_mode_vga(dut):
         old_reset_read_ptr  = int(dut.reset_read_ptr.value)
 
         await ClockCycles(dut.clk, 1)
+
+    # Ensure that the image is the golden one
+    golden_image = read_ppm("image_vga_15_128_-40832_-19200.golden.ppm", True)
+    for (i, (x, y)) in enumerate(zip(golden_image, image)):
+        if x != y:
+            dut._log.error("{} != {} @ {}", x, y, i)
+        assert x == y
