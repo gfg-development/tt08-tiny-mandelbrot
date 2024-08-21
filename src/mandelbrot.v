@@ -145,7 +145,7 @@ module mandelbrot #(
     assign in_zr = zr;
     assign in_zi = zi;
 
-    assign running = !stopped;
+    assign running = ~stopped;
 
     mandelbrot_alu #(.WIDTH(BITWIDTH)) alu (
         .clk(clk),
