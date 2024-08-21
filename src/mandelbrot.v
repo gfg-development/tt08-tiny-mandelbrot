@@ -70,18 +70,22 @@ module mandelbrot #(
     reg         [BITWIDTH_WIDTH - 1 : 0]    x;
     reg         [BITWIDTH_HEIGHT - 1 : 0]   y;
 
+    reg                                     l_alu_finished;
+
     wire                                    alu_finished;
     wire                                    alu_start;
 
-    assign alu_start                    = (stopped == 1'b1) ? run : alu_finished;
+    assign alu_start                    = (stopped == 1'b1) ? run : l_alu_finished;
 
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             finished                    <= 1'b1;
             stopped                     <= 1'b1;
+            l_alu_finished              <= 1'b0;
         end else begin
+            l_alu_finished              <= alu_finished;
             if (stopped == 1'b0) begin
-                if (alu_finished == 1'b1) begin            
+                if (l_alu_finished == 1'b1) begin            
                     if (size == 1'b1 || ctr == max_ctr || overflowed) begin
                         ctr                 <= 0;
                         overflowed          <= 0;
@@ -125,7 +129,7 @@ module mandelbrot #(
                     finished            <= 1'b0;
                     stopped             <= 1'b0;
                 end
-                
+
                 if (finished == 1'b1) begin
                     cr                 <= cr_offset;
                     ci                 <= ci_offset;
