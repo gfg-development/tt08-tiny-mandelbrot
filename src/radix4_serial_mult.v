@@ -107,6 +107,6 @@ module radix4_serial_mult #( parameter WIDTH = 8) (
     end
 
     assign out = shift_reg[2 * WIDTH : 1];
-    assign finished = !running;
+    assign finished = ~running;
 
 endmodule
