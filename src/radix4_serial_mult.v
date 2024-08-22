@@ -88,6 +88,7 @@ module radix4_serial_mult #( parameter WIDTH = 8) (
     always @ (posedge clk, negedge rst_n) begin
         if (!rst_n) begin
             running                             <= 1'b0;
+            shift_reg                           <= 0;
         end else begin
             if (running) begin
                 shift_reg                       <= {shift_input, shift_reg[FULL_WIDTH : 2]};
