@@ -36,12 +36,12 @@ module mandelbrot #(
     parameter WIDTH         = 320
 ) (
     input  wire                     clk,
-    input  wire                     reset,
+    input  wire                     rst_n,
     input  wire                     run,
     output wire                     running,
     input  wire [CTRWIDTH - 1 : 0]  max_ctr,
-    input  wire [1 : 0]             ctr_select,
-    input  wire [1 : 0]             scaling,
+    input  wire [2 : 0]             ctr_select,
+    input  wire [6 : 0]             scaling,
     input  wire [BITWIDTH - 1 : 0]  cr_offset,
     input  wire [BITWIDTH - 1 : 0]  ci_offset,
     output reg  [3 : 0]             ctr_out,
@@ -50,83 +50,104 @@ module mandelbrot #(
     localparam BITWIDTH_WIDTH   = $clog2(WIDTH);
     localparam BITWIDTH_HEIGHT  = $clog2(HEIGHT);
 
-    wire signed [BITWIDTH - 1 : 0]      in_cr;
-    wire signed [BITWIDTH - 1 : 0]      in_ci;
-    wire signed [BITWIDTH - 1 : 0]      in_zr;
-    wire signed [BITWIDTH - 1 : 0]      in_zi;
-    wire signed [BITWIDTH - 1 : 0]      out_zr;
-    wire signed [BITWIDTH - 1 : 0]      out_zi;
-    wire                                size;
-    wire                                overflow;
+    wire signed [BITWIDTH - 1 : 0]          in_cr;
+    wire signed [BITWIDTH - 1 : 0]          in_ci;
+    wire signed [BITWIDTH - 1 : 0]          in_zr;
+    wire signed [BITWIDTH - 1 : 0]          in_zi;
+    wire signed [BITWIDTH - 1 : 0]          out_zr;
+    wire signed [BITWIDTH - 1 : 0]          out_zi;
+    wire                                    size;
+    wire                                    overflow;
 
-    reg  signed [BITWIDTH - 1 : 0]      cr;
-    reg  signed [BITWIDTH - 1 : 0]      ci;
-    reg  signed [BITWIDTH - 1 : 0]      zr;
-    reg  signed [BITWIDTH - 1 : 0]      zi;
-    reg         [CTRWIDTH - 1 : 0]      ctr;
-    reg                                 stopped;
-    reg                                 overflowed;
+    reg  signed [BITWIDTH - 1 : 0]          cr;
+    reg  signed [BITWIDTH - 1 : 0]          ci;
+    reg  signed [BITWIDTH - 1 : 0]          zr;
+    reg  signed [BITWIDTH - 1 : 0]          zi;
+    reg         [CTRWIDTH - 1 : 0]          ctr;
+    reg                                     stopped;
+    reg                                     overflowed;
 
     reg         [BITWIDTH_WIDTH - 1 : 0]    x;
     reg         [BITWIDTH_HEIGHT - 1 : 0]   y;
 
-    always @(posedge clk) begin        
-        if (stopped == 1'b0) begin
-            if (size == 1'b1 || ctr == max_ctr || overflowed) begin
-                ctr                 <= 0;
-                overflowed          <= 0;
-                case (ctr_select)
-                    2'b00: ctr_out  <= ctr[3 : 0];
-                    2'b01: ctr_out  <= ctr[4 : 1];
-                    2'b10: ctr_out  <= ctr[5 : 2];
-                    2'b11: ctr_out  <= ctr[6 : 3];
-                endcase
+    reg                                     l_alu_finished;
+    wire                                    alu_finished_edge;
 
-                zr                  <= 0;
-                zi                  <= 0;
-                stopped             <= 1'b1;
+    wire                                    alu_finished;
+    wire                                    alu_start;
 
-                if (x == WIDTH - 1) begin
-                    cr              <= cr_offset;
-                    ci              <= ci + {{(BITWIDTH - 2){1'b0}}, scaling} + 1;
+    wire                                    break_criteria;
 
-                    x               <= 0;
-                    y               <= y + 1;
-                    if (y == HEIGHT - 1) begin
-                        finished    <= 1'b1;
+    assign alu_start                    = (stopped == 1'b1 || break_criteria == 1'b1) ? run : alu_finished_edge;
+    assign alu_finished_edge            = l_alu_finished == 1'b0 && alu_finished == 1'b1;
+
+    assign break_criteria               = size == 1'b1 || ctr == max_ctr || overflowed;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            finished                    <= 1'b1;
+            stopped                     <= 1'b1;
+            l_alu_finished              <= 1'b0;
+        end else begin
+            l_alu_finished              <= alu_finished;
+            if (stopped == 1'b0) begin
+                if (alu_finished_edge == 1'b1) begin            
+                    if (break_criteria) begin
+                        ctr                 <= 0;
+                        overflowed          <= 0;
+                        case (ctr_select)
+                            3'b000: ctr_out  <= ctr[3 : 0];
+                            3'b001: ctr_out  <= ctr[4 : 1];
+                            3'b010: ctr_out  <= ctr[5 : 2];
+                            3'b011: ctr_out  <= ctr[6 : 3];
+                            3'b100: ctr_out  <= ctr[7 : 4];
+                            3'b101: ctr_out  <= ctr[8 : 5];
+                            3'b110: ctr_out  <= ctr[9 : 6];
+                            3'b111: ctr_out  <= {ctr[9], ctr[6], ctr[3], ctr[0]};
+                        endcase
+
+                        zr                  <= 0;
+                        zi                  <= 0;
+                        stopped             <= 1'b1;
+
+                        if (x == WIDTH - 1) begin
+                            cr              <= cr_offset;
+                            ci              <= ci + {{(BITWIDTH - 7){1'b0}}, scaling} + 1;
+
+                            x               <= 0;
+                            y               <= y + 1;
+                            if (y == HEIGHT - 1) begin
+                                finished    <= 1'b1;
+                            end
+                        end else begin
+                            cr              <= cr + {{(BITWIDTH - 7){1'b0}}, scaling} + 1;
+                            x               <= x + 1;
+                        end
+                    end else begin
+                        zr                  <= out_zr;
+                        zi                  <= out_zi;
+                        ctr                 <= ctr + 1;
+                        overflowed          <= overflow;
                     end
-                end else begin
-                    cr              <= cr + {{(BITWIDTH - 2){1'b0}}, scaling} + 1;
-                    x               <= x + 1;
                 end
             end else begin
-                zr                  <= out_zr;
-                zi                  <= out_zi;
-                ctr                 <= ctr + 1;
-                overflowed          <= overflow;
-            end
-        end else begin
-            if (run == 1'b1) begin
-                finished            <= 1'b0;
-                stopped             <= 1'b0;
-            end
+                if (run == 1'b1) begin
+                    finished            <= 1'b0;
+                    stopped             <= 1'b0;
+                end
 
-            if (finished == 1'b1) begin
-                cr                 <= cr_offset;
-                ci                 <= ci_offset;
-                zr                 <= 0;
-                zi                 <= 0;
-                ctr                <= 0;
-                overflowed         <= 0;
-                x                  <= 0;
-                y                  <= 0;
+                if (finished == 1'b1) begin
+                    cr                 <= cr_offset;
+                    ci                 <= ci_offset;
+                    zr                 <= 0;
+                    zi                 <= 0;
+                    ctr                <= 0;
+                    overflowed         <= 0;
+                    x                  <= 0;
+                    y                  <= 0;
+                end
             end
-        end
-
-        if (reset) begin
-            finished                <= 1'b1;
-            stopped                 <= 1'b1;
-        end
+        end      
     end
 
     assign in_cr = cr;
@@ -135,9 +156,14 @@ module mandelbrot #(
     assign in_zr = zr;
     assign in_zi = zi;
 
-    assign running = !stopped;
+    assign running = ~stopped;
 
     mandelbrot_alu #(.WIDTH(BITWIDTH)) alu (
+        .clk(clk),
+        .rst_n(rst_n),
+        .start(alu_start),
+        .first_iteration(stopped),
+        .finished(alu_finished),
         .in_cr(in_cr),
         .in_ci(in_ci),
         .in_zr(in_zr),

@@ -33,6 +33,11 @@
 
 
 module mandelbrot_alu #( parameter WIDTH = 8) (
+    input  wire                            clk,
+    input  wire                            rst_n,
+    input  wire                            start,
+    input  wire                            first_iteration,
+    output wire                            finished,
     input  wire signed [WIDTH - 1 : 0]     in_cr,
     input  wire signed [WIDTH - 1 : 0]     in_ci,
     input  wire signed [WIDTH - 1 : 0]     in_zr,
@@ -55,17 +60,53 @@ module mandelbrot_alu #( parameter WIDTH = 8) (
     wire                            overflow_r;
     wire                            overflow_i;
 
-    assign m1           = in_zr * in_zr;
-    assign m2           = in_zi * in_zi;
-    assign m3           = in_zr * in_zi;
+    wire signed [WIDTH - 1 : 0]     result_zr;
+    wire signed [WIDTH - 1 : 0]     result_zi;
+
+    wire signed [WIDTH - 1 : 0]     next_zr;
+    wire signed [WIDTH - 1 : 0]     next_zi;
+
+    assign next_zr = (first_iteration) ? 0 : result_zr;
+    assign next_zi = (first_iteration) ? 0 : result_zi;
+
+    radix4_serial_mult #(.WIDTH(WIDTH)) mult_zr_zr (
+        .clk(clk),
+        .rst_n(rst_n),
+        .in_x(next_zr),
+        .in_y(in_zr),
+        .start(start),
+        .out(m1),
+        .finished(finished)
+    );
+
+    radix4_serial_mult #(.WIDTH(WIDTH)) mult_zi_zi (
+        .clk(clk),
+        .rst_n(rst_n),
+        .in_x(next_zi),
+        .in_y(in_zi),
+        .start(start),
+        .out(m2)
+    );
+
+    radix4_serial_mult #(.WIDTH(WIDTH)) mult_zr_zi (
+        .clk(clk),
+        .rst_n(rst_n),
+        .in_x(next_zr),
+        .in_y(in_zi),
+        .start(start),
+        .out(m3)
+    );
 
     assign diff_m1_m2 = {m1[2 * WIDTH - 1], m1} - {m2[2 * WIDTH - 1], m2};
 
     assign t_zr = diff_m1_m2[2 * WIDTH : WIDTH - 2] + {{3{in_cr[WIDTH - 1]}}, in_cr};
     assign t_zi = {m3[2 * WIDTH - 1], m3[2 * WIDTH - 1 : WIDTH - 3]} + {{4{in_ci[WIDTH - 1]}}, in_ci};
 
-    assign out_zr       = t_zr[WIDTH - 1 : 0];
-    assign out_zi       = t_zi[WIDTH - 1 : 0];
+    assign result_zr    = t_zr[WIDTH - 1 : 0];
+    assign result_zi    = t_zi[WIDTH - 1 : 0];
+
+    assign out_zr       = result_zr;
+    assign out_zi       = result_zi;
 
     assign t_sum = {1'b0, m1[2 * WIDTH - 1 : 0]} + {1'b0, m2[2 * WIDTH - 1 : 0]};
 

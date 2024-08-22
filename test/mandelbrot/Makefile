@@ -5,7 +5,7 @@
 SIM ?= icarus
 TOPLEVEL_LANG ?= verilog
 SRC_DIR = $(PWD)/../../src
-PROJECT_SOURCES = mandelbrot.v mandelbrot_alu.v
+PROJECT_SOURCES = mandelbrot.v mandelbrot_alu.v bit_serial_mult.v
 
 # RTL simulation:
 SIM_BUILD				= sim_build/rtl

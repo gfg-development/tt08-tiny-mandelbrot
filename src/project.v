@@ -18,8 +18,14 @@ module tt_um_gfg_development_tinymandelbrot (
     // List all unused inputs to prevent warnings
     wire _unused = &{ena, clk, rst_n, 1'b0};
 
-    wire reset;
-    assign reset = !rst_n;
+    // reset generation
+    wire combined_rst_n;
+    reg  latched_rst_n;
+
+    always @(negedge clk) begin
+        latched_rst_n       <= rst_n;
+    end
+    assign combined_rst_n   = latched_rst_n && rst_n;
 
     // output_select == 1 --> use binary interface, 0 --> VGA interface
     wire output_select;
@@ -36,7 +42,7 @@ module tt_um_gfg_development_tinymandelbrot (
     assign uo_out[7]  = (output_select == 1'b1) ? 1'b0        : hsync;
 
     // shift register for controlling the system from the RP2040
-    reg [32 : 0]  configuration;
+    reg [51 : 0]  configuration;
     reg [2 : 0]   l_sdata;
     reg [2 : 0]   l_sclk;
     reg [2 : 0]   l_sen;
@@ -46,7 +52,7 @@ module tt_um_gfg_development_tinymandelbrot (
         l_sen   <= {l_sen[1 : 0], ui_in[0]};
 
         if (l_sen[2] == 1'b1 && l_sclk[2] == 1'b0 && l_sclk[1] == 1'b1) begin
-            configuration   <= {l_sdata[2], configuration[32 : 1]};
+            configuration   <= {l_sdata[2], configuration[51 : 1]};
         end
     end
 
@@ -55,16 +61,21 @@ module tt_um_gfg_development_tinymandelbrot (
     wire          running;
     wire          finished;
     reg           run_pixel;
-    mandelbrot #(.BITWIDTH(11), .CTRWIDTH(7)) mandelbrot (
+    mandelbrot #(
+        .BITWIDTH(16), 
+        .CTRWIDTH(10),
+        .HEIGHT(300),
+        .WIDTH(400)
+    ) mandelbrot (
         .clk(clk),
-        .reset(reset),
+        .rst_n(combined_rst_n),
         .run(run_pixel),
         .running(running),
-        .max_ctr(configuration[32 : 26]),
-        .scaling(configuration[23 : 22]),
-        .cr_offset(configuration[10 : 0]),
-        .ci_offset(configuration[21 : 11]),
-        .ctr_select(configuration[25 : 24]),
+        .max_ctr(configuration[51 : 42]),
+        .scaling(configuration[38 : 32]),
+        .cr_offset(configuration[15 : 0]),
+        .ci_offset(configuration[31 : 16]),
+        .ctr_select(configuration[41 : 39]),
         .ctr_out(ctr_out),
         .finished(finished)
     );
@@ -87,15 +98,30 @@ module tt_um_gfg_development_tinymandelbrot (
 
     wire          wrote_data;
 
-    assign R = gray[3 : 2];
-    assign G = gray[2 : 1];
-    assign B = gray[1 : 0];
+    color_map color_map (
+        .gray(gray),
+        .R(R),
+        .G(G),
+        .B(B)
+    );
 
     assign uio_oe = 8'hFF;
 
-    vga_rp2040_framebuffer vga (
+    vga_rp2040_framebuffer #(
+        .LINE_VISIBLE(800),
+        .LINE_FRONT_PORCH(40),
+        .LINE_SYNC_PULSE(128),
+        .LINE_BACK_PORCH(88),
+
+        .ROW_VISIBLE(600),
+        .ROW_FRONT_PORCH(1),
+        .ROW_SYNC_PULSE(4),
+        .ROW_BACK_PORCH(23),
+
+        .SYNC_POLARITY(1)
+    ) vga (
         .clk(clk),
-        .rst_n(rst_n),
+        .rst_n(combined_rst_n),
 
         .v_sync_out(vsync),
         .h_sync_out(hsync),
@@ -114,10 +140,10 @@ module tt_um_gfg_development_tinymandelbrot (
     reg  [1 : 0]    state;
     reg             reset_write_ptr;
 
-    always @(posedge clk) begin
+    always @(posedge clk or negedge combined_rst_n) begin
         reset_write_ptr                     <= 1'b0;
         run_pixel                           <= 1'b0;
-        if (reset == 1'b1) begin
+        if (!combined_rst_n) begin
             state                           <= 0;
         end else begin
             case (state)
