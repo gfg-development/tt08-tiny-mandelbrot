@@ -177,7 +177,7 @@ async def test_mode_vga(dut):
 
     shift_framebuffer = [0, 0]                
 
-    for _ in range(15 * 1056 * 628):
+    for _ in range(18 * 1056 * 628):
         time = get_sim_time("ns")
         if dut.vsync.value == 1 and old_vsync == 0:
             if last_vsync_start != None:
@@ -196,8 +196,8 @@ async def test_mode_vga(dut):
 
             dut._log.info("VSync - start of frame {}".format(frame_nr))
             
-            if frame_nr == 14:
-                dut._log.info("Got 14 frames, compare the last one to the golden one")
+            if frame_nr == 17:
+                dut._log.info("Got 17 frames, compare the last one to the golden one")
                 break
 
             pixel_nr = 0
