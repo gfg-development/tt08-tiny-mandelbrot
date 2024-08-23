@@ -78,15 +78,20 @@ module mandelbrot #(
 
     wire                                    break_criteria;
 
-    function [3 : 0] highst_bit (input [15 : 0] a);
+    function [3 : 0] highst_bit (input [14 : 0] a);
         begin
             integer i;
             integer hb;
-            for (i = 0; i < 16; i++) begin
+            for (i = 0; i < 15; i++) begin
                 if (a[i] == 1'b1) begin
                     hb = i;
                 end
             end
+
+            if (a == 15'h7FFF) begin
+                hb = 15;
+            end
+            
             highst_bit = hb;
         end
     endfunction
@@ -115,7 +120,7 @@ module mandelbrot #(
                             3'b011: ctr_out  <= ctr[9 : 6];
                             3'b100: ctr_out  <= ctr[11 : 8];
                             3'b101: ctr_out  <= ctr[13 : 10];
-                            3'b110: ctr_out  <= ctr[15 : 12];
+                            3'b110: ctr_out  <= ctr[14 : 11];
                             3'b111: ctr_out  <= highst_bit(ctr);
                         endcase
 

@@ -42,7 +42,7 @@ module tt_um_gfg_development_tinymandelbrot (
     assign uo_out[7]  = (output_select == 1'b1) ? 1'b0        : hsync;
 
     // shift register for controlling the system from the RP2040
-    reg [57 : 0]  configuration;
+    reg [56 : 0]  configuration;
     reg [2 : 0]   l_sdata;
     reg [2 : 0]   l_sclk;
     reg [2 : 0]   l_sen;
@@ -63,7 +63,7 @@ module tt_um_gfg_development_tinymandelbrot (
     reg           run_pixel;
     mandelbrot #(
         .BITWIDTH(16), 
-        .CTRWIDTH(16),
+        .CTRWIDTH(15),
         .HEIGHT(300),
         .WIDTH(400)
     ) mandelbrot (
@@ -71,7 +71,7 @@ module tt_um_gfg_development_tinymandelbrot (
         .rst_n(combined_rst_n),
         .run(run_pixel),
         .running(running),
-        .max_ctr(configuration[57 : 42]),
+        .max_ctr(configuration[56 : 42]),
         .scaling(configuration[38 : 32]),
         .cr_offset(configuration[15 : 0]),
         .ci_offset(configuration[31 : 16]),
