@@ -79,17 +79,17 @@ module mandelbrot #(
     wire                                    break_criteria;
 
     function [3 : 0] highst_bit (input [14 : 0] a);
-        begin
+        begin : func_body
             integer i;
             integer hb;
-            for (i = 0; i < 15; i++) begin
+            for (i = 0; i < 15; i = i + 1) begin
                 if (a[i] == 1'b1) begin
-                    hb <= i;
+                    hb = i;
                 end
             end
 
             if (a == 15'h7FFF) begin
-                hb <= 15;
+                hb = 15;
             end
 
             highst_bit = hb;

@@ -100,8 +100,8 @@ module toplevel #(
     
     reg [2 : 0]     state               = 0;
     reg [5 : 0]     shift_ctr;
-    reg [51 : 0]    configuration;
-    reg [2  : 0]    configuration_ptr   = 0;
+    reg [56 : 0]    configuration;
+    reg [4  : 0]    configuration_ptr   = 0;
     reg             enable;
     reg             sclk;
     reg             l_next;
@@ -119,28 +119,64 @@ module toplevel #(
                         if (next == 1'b1 && l_next == 1'b0) begin
                             case (configuration_ptr)
                                 0:
-                                    configuration   <= {10'h00F, 3'b000, 7'h7F, 16'hB500, 16'h6080};
+                                    configuration           <= {15'h000F, 3'b000, 7'h7F, 16'hB500, 16'h6080};
 
                                 1:
-                                    configuration   <= {10'h01F, 3'b001, 7'h7F, 16'hB500, 16'h6080};
+                                    configuration           <= {15'h003F, 3'b001, 7'h7F, 16'hB500, 16'h6080};
 
                                 2:
-                                    configuration   <= {10'h03F, 3'b010, 7'h7F, 16'hB500, 16'h6080};
+                                    configuration           <= {15'h00FF, 3'b010, 7'h7F, 16'hB500, 16'h6080};
 
                                 3:
-                                    configuration   <= {10'h07F, 3'b011, 7'h7F, 16'hB500, 16'h6080};
+                                    configuration           <= {15'h03FF, 3'b011, 7'h7F, 16'hB500, 16'h6080};
 
                                 4:
-                                    configuration   <= {10'h00F, 3'b000, 7'h7F, 16'hB500, 16'h6080};
+                                    configuration           <= {15'h000F, 3'b000, 7'h7F, 16'hB500, 16'h6080};
 
                                 5:
-                                    configuration   <= {10'h01F, 3'b000, 7'h7F, 16'hB500, 16'h6080};
+                                    configuration           <= {15'h003F, 3'b000, 7'h7F, 16'hB500, 16'h6080};
 
                                 6:
-                                    configuration   <= {10'h03F, 3'b000, 7'h7F, 16'hB500, 16'h6080};
+                                    configuration           <= {15'h00FF, 3'b000, 7'h7F, 16'hB500, 16'h6080};
 
                                 7:
-                                    configuration   <= {10'h07F, 3'b000, 7'h7F, 16'hB500, 16'h6080};
+                                    configuration           <= {15'h03FF, 3'b000, 7'h7F, 16'hB500, 16'h6080};
+
+                                8:
+                                    configuration           <= {15'h7FFF, 3'b110, 7'h7F, 16'hBC40, 16'hF3CA};
+
+                                9:
+                                    configuration           <= {15'h7FFF, 3'b110, 7'h3F, 16'hBC40, 16'hF3CA};
+
+                                10:
+                                    configuration           <= {15'h7FFF, 3'b110, 7'h1F, 16'hBC40, 16'hF3CA};
+
+                                11:
+                                    configuration           <= {15'h7FFF, 3'b110, 7'h0F, 16'hBC40, 16'hF3CA};
+
+                                12:
+                                    configuration           <= {15'h7FFF, 3'b110, 7'h07, 16'hBC40, 16'hF3CA};
+
+                                13:
+                                    configuration           <= {15'h7FFF, 3'b110, 7'h03, 16'hBC40, 16'hF3CA};
+
+                                14:
+                                    configuration           <= {15'h7FFF, 3'b110, 7'h01, 16'hBC40, 16'hF3CA};
+
+                                15:
+                                    configuration           <= {15'h7FFF, 3'b110, 7'h00, 16'hBC40, 16'hF3CA};
+
+                                16:
+                                    configuration           <= {15'h7FFF, 3'b111, 7'h00, 16'hBC40, 16'hF3CA};
+
+                                17:
+                                    configuration           <= {15'h7FFF, 3'b111, 7'h01, 16'hBC40, 16'hF3CA};
+
+                                default:
+                                    begin
+                                        configuration       <= {15'h000F, 3'b000, 7'h7F, 16'hB500, 16'h6080};
+                                        configuration_ptr   <= 0;
+                                    end
                             endcase
 
                             state                   <= 1;
@@ -171,7 +207,7 @@ module toplevel #(
                         sclk                        <= 1'b0;
                         configuration               <= configuration >> 1;
                         
-                        if (shift_ctr == 51) begin
+                        if (shift_ctr == 56) begin
                             state                   <= 5;
                             configuration_ptr       <= configuration_ptr + 1;
                         end else begin
