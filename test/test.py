@@ -38,7 +38,7 @@ async def configure(dut):
     dut.ui_in[0].value = 1
     dut.ui_in[2].value = 0
 
-    for _ in range(52):
+    for _ in range(57):
         dut.ui_in[1].value = configuration & 0x1
         configuration = configuration >> 1
         dut.ui_in[2].value = 0
