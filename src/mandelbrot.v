@@ -84,14 +84,14 @@ module mandelbrot #(
             integer hb;
             for (i = 0; i < 15; i++) begin
                 if (a[i] == 1'b1) begin
-                    hb = i;
+                    hb <= i;
                 end
             end
 
             if (a == 15'h7FFF) begin
-                hb = 15;
+                hb <= 15;
             end
-            
+
             highst_bit = hb;
         end
     endfunction
