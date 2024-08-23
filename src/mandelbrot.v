@@ -81,12 +81,13 @@ module mandelbrot #(
     function [3 : 0] highst_bit (input [15 : 0] a);
         begin
             integer i;
-            for (i = 15; i >= 0; i--) begin
+            integer hb;
+            for (i = 0; i < 16; i++) begin
                 if (a[i] == 1'b1) begin
-                    highst_bit = i;
-                    break;
+                    hb = i;
                 end
             end
+            highst_bit = hb;
         end
     endfunction
 
