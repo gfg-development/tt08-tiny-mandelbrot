@@ -78,6 +78,18 @@ module mandelbrot #(
 
     wire                                    break_criteria;
 
+    function [3 : 0] highst_bit (input [15 : 0] a);
+        begin
+            integer i;
+            for (i = 15; i >= 0; i--) begin
+                if (a[i] == 1'b1) begin
+                    highst_bit = i;
+                    break;
+                end
+            end
+        end
+    endfunction
+
     assign alu_start                    = (stopped == 1'b1 || break_criteria == 1'b1) ? run : alu_finished_edge;
     assign alu_finished_edge            = l_alu_finished == 1'b0 && alu_finished == 1'b1;
 
@@ -97,13 +109,13 @@ module mandelbrot #(
                         overflowed          <= 0;
                         case (ctr_select)
                             3'b000: ctr_out  <= ctr[3 : 0];
-                            3'b001: ctr_out  <= ctr[4 : 1];
-                            3'b010: ctr_out  <= ctr[5 : 2];
-                            3'b011: ctr_out  <= ctr[6 : 3];
-                            3'b100: ctr_out  <= ctr[7 : 4];
-                            3'b101: ctr_out  <= ctr[8 : 5];
-                            3'b110: ctr_out  <= ctr[9 : 6];
-                            3'b111: ctr_out  <= {ctr[9], ctr[6], ctr[3], ctr[0]};
+                            3'b001: ctr_out  <= ctr[5 : 2];
+                            3'b010: ctr_out  <= ctr[7 : 4];
+                            3'b011: ctr_out  <= ctr[9 : 6];
+                            3'b100: ctr_out  <= ctr[11 : 8];
+                            3'b101: ctr_out  <= ctr[13 : 10];
+                            3'b110: ctr_out  <= ctr[15 : 12];
+                            3'b111: ctr_out  <= highst_bit(ctr);
                         endcase
 
                         zr                  <= 0;
