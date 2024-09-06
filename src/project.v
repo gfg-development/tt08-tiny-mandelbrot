@@ -32,17 +32,17 @@ module tt_um_gfg_development_tinymandelbrot (
     assign output_select    = ui_in[3];
 
     // Multiplexing IOs between the different modes
-    assign uo_out[0]  = (output_select == 1'b1) ? ctr_out[0]  : R[1];
-    assign uo_out[1]  = (output_select == 1'b1) ? ctr_out[1]  : G[1];
-    assign uo_out[2]  = (output_select == 1'b1) ? ctr_out[2]  : B[1];
+    assign uo_out[0]  = (output_select == 1'b1) ? ctr_out[0]  : (configuration[52] == 1'b1) ? gray[3] : R[1];
+    assign uo_out[1]  = (output_select == 1'b1) ? ctr_out[1]  : (configuration[52] == 1'b1) ? gray[2] : G[1];
+    assign uo_out[2]  = (output_select == 1'b1) ? ctr_out[2]  : (configuration[52] == 1'b1) ? gray[1] : B[1];
     assign uo_out[3]  = (output_select == 1'b1) ? ctr_out[3]  : vsync;
-    assign uo_out[4]  = (output_select == 1'b1) ? running     : R[0];
+    assign uo_out[4]  = (output_select == 1'b1) ? running     : (configuration[52] == 1'b1) ? gray[0] : R[0];
     assign uo_out[5]  = (output_select == 1'b1) ? finished    : G[0];
     assign uo_out[6]  = (output_select == 1'b1) ? 1'b0        : B[0];
     assign uo_out[7]  = (output_select == 1'b1) ? 1'b0        : hsync;
 
     // shift register for controlling the system from the RP2040
-    reg [51 : 0]  configuration;
+    reg [52 : 0]  configuration;
     reg [2 : 0]   l_sdata;
     reg [2 : 0]   l_sclk;
     reg [2 : 0]   l_sen;
@@ -52,7 +52,7 @@ module tt_um_gfg_development_tinymandelbrot (
         l_sen   <= {l_sen[1 : 0], ui_in[0]};
 
         if (l_sen[2] == 1'b1 && l_sclk[2] == 1'b0 && l_sclk[1] == 1'b1) begin
-            configuration   <= {l_sdata[2], configuration[51 : 1]};
+            configuration   <= {l_sdata[2], configuration[52 : 1]};
         end
     end
 
